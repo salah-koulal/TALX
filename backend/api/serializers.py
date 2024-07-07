@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
+from .models import Profile, Post, LikePost, Comment, Following
 
 UserModel = get_user_model()
 
@@ -36,4 +37,43 @@ class UserLoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
-        fields = ("email", "username")
+        fields = ("id", "email", "username")
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = "__all__"
+
+
+class PostSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Post
+        fields = "__all__"
+
+
+class LikePostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LikePost
+        fields = "__all__"
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = "__all__"
+
+
+class FollowingSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    followed_user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Following
+        fields = "__all__"
