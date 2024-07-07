@@ -2,7 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { NoProfile } from "../assets/idx.js";
 
+
 const FriendsCard = ({ friends }) => {
+  
   return (
     <div>
       <div className="w-full bg-primary shadow-sm rounded-lg px-6 py-5">
@@ -23,7 +25,14 @@ const FriendsCard = ({ friends }) => {
                 alt={friend?.firstName}
                 className="w-10 h-10 object-cover rounded-full"
               />
-            
+              <div className="flex-1">
+                <p className="text-base font-medium text-ascent-1">
+                  {friend?.firstName} {friend?.lastName}
+                </p>
+                <span className="text-sm text-ascent-2">
+                  {friend?.profession ?? "No Profession"}
+                </span>
+              </div>
             </Link>
           ))}
         </div>

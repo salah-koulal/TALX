@@ -103,28 +103,30 @@ export const user = {
 };
 
 export const friends = [
-    {
-        _id: "64df3aec4180b81adfe41d32",
-        firstName: "John",
-        lastName: "Bruce",
-        email: "john@gmail.com",
-        profileUrl:
-        "https://res.cloudinary.com/djs3wu5bg/image/upload/v1683874470/cld-sample.jpg",
-    },
-    {
-        _id: "64df39704180b81adfe41d0b",
-        firstName: "Ahmed",
-        lastName: "Ali",
-        email: "james@gmail.com",
-        location: "Rabat, Morocco",
-        profession: "Full-Stack Developer",
-    },
-    {
-        _id: "64df424b4a4c0d47b5369f65",
-        firstName: "Mohammed",
-        lastName: "Samurai",
-        email: "samurai24@gmail.com",
-    },
+  {
+    _id: "64df3aec4180b81adfe41d32",
+    firstName: "John",
+    lastName: "Bruce",
+    email: "john@gmail.com",
+    profession: "Designer",
+    profileUrl:
+      "https://i.pinimg.com/564x/1e/34/ba/1e34bad87cac530bea74c84b79129175.jpg",
+  },
+  {
+    _id: "64df39704180b81adfe41d0b",
+    firstName: "Ahmed",
+    lastName: "Ali",
+    email: "james@gmail.com",
+    location: "Rabat, Morocco",
+    profession: "Full-Stack Developer",
+  },
+  {
+    _id: "64df424b4a4c0d47b5369f65",
+    firstName: "Alice",
+    lastName: "Brethan",
+    profession: "Software Engineer",
+    email: "samurai24@gmail.com",
+  },
 ];
 
 export const requests = [
