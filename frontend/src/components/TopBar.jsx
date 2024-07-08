@@ -35,7 +35,7 @@ const TopBar = () => {
           <img
             src={logo}
             alt=""
-            width="90px"
+            width="80px"
             className="logo mt-6 ml-20 max-sm:ml-5"
           />
         </div>
