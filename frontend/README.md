@@ -47,6 +47,8 @@ npm run dev
 
 
 ## Project Structure
+
+```java
 TALX/
 ├── frontend/
 │   ├── public/
@@ -61,11 +63,4 @@ TALX/
 │   ├── package.json
 │   └── README.md
 └── backend/
-
-## Contributing
-
-Contributions are welcome! Please read our contributing guidelines for more details.
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
+```
