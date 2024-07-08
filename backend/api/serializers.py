@@ -17,6 +17,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         )
         user_obj.username = clean_data["username"]
         user_obj.save()
+        Profile.objects.create(user=user_obj)
         return user_obj
 
 
@@ -37,7 +38,7 @@ class UserLoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
-        fields = ("id", "email", "username")
+        fields = ("email", "username")
 
 
 class ProfileSerializer(serializers.ModelSerializer):

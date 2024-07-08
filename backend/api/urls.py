@@ -7,4 +7,28 @@ urlpatterns = [
     path("logout", views.UserLogout.as_view(), name="logout"),
     path("user", views.UserView.as_view(), name="user"),
     path("profiles", views.ProfilesView.as_view(), name="profiles"),
+    path(
+        "profiles/<username>", views.ProfileView.as_view(), name="user-profile"
+    ),
+    path("posts", views.PostsView.as_view(), name="posts"),
+    path("posts/<pk>", views.PostView.as_view(), name="post"),
+    path(
+        "posts/<post_id>/comments",
+        views.PostCommentsView.as_view(),
+        name="post-comments",
+    ),
+    path("comments/<pk>", views.CommentsView.as_view(), name="comments"),
+    path(
+        "posts/<post_id>/likes", views.LikePostView.as_view(), name="like-post"
+    ),
+    path(
+        "users/<username>/follow",
+        views.FollowUserView.as_view(),
+        name="follow-user",
+    ),
+    path(
+        "users/<username>/following",
+        views.FollowingView.as_view(),
+        name="following",
+    ),
 ]
