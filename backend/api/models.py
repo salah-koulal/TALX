@@ -42,7 +42,8 @@ class Profile(models.Model):
     user = models.OneToOneField(AppUser, on_delete=models.CASCADE)
     bio = models.TextField(blank=True)
     profileimg = models.ImageField(
-        upload_to="profile_images", default="blank-profile-picture.png"
+        upload_to="profile_images",
+        default="profile_images/blank-profile-picture.png",
     )
 
     def __str__(self):

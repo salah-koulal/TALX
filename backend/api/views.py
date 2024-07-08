@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model, login, logout
+from django.shortcuts import get_object_or_404
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -67,11 +68,19 @@ class UserView(APIView):
         return Response({"user": serializer.data}, status=status.HTTP_200_OK)
 
 
-# add permission classes later
+# add auth password reset later
+
+
 class PostsView(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save(author=self.request.user)
+        else:
+            print(serializer.errors)
 
 
 class PostView(generics.RetrieveUpdateDestroyAPIView):
@@ -80,7 +89,7 @@ class PostView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PostSerializer
 
 
-class ProfilesView(generics.ListCreateAPIView):
+class ProfilesView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
@@ -104,8 +113,11 @@ class PostCommentsView(generics.ListCreateAPIView):
         return queryset
 
     def perform_create(self, serializer):
-        post = get_object_or_404(Post, id=self.kwargs["post_id"])
-        serializer.save(post=post)
+        if serializer.is_valid():
+            post = get_object_or_404(Post, id=self.kwargs["post_id"])
+            serializer.save(post=post, author=self.request.user)
+        else:
+            print(serializer.errors)
 
 
 class CommentsView(generics.RetrieveUpdateDestroyAPIView):
@@ -124,8 +136,11 @@ class LikePostView(generics.ListCreateAPIView):
         return queryset
 
     def perform_create(self, serializer):
-        post = get_object_or_404(Post, id=self.kwargs["post_id"])
-        serializer.save(post=post)
+        if serializer.is_valid():
+            post = get_object_or_404(Post, id=self.kwargs["post_id"])
+            serializer.save(post=post, author=self.request.user)
+        else:
+            print(serializer.errors)
 
 
 class FollowUserView(generics.CreateAPIView):
@@ -133,8 +148,15 @@ class FollowUserView(generics.CreateAPIView):
     serializer_class = FollowingSerializer
 
     def perform_create(self, serializer):
-        followed_user = get_object_or_404(AppUser, id=self.kwargs["username"])
-        serializer.save(followed_user=followed_user)
+        if serializer.is_valid():
+            followed_user = get_object_or_404(
+                AppUser, username=self.kwargs["username"]
+            )
+            serializer.save(
+                followed_user=followed_user, user=self.request.user
+            )
+        else:
+            print(serializer.errors)
 
 
 class FollowingView(generics.ListAPIView):
@@ -143,6 +165,6 @@ class FollowingView(generics.ListAPIView):
 
     def get_queryset(self):
         username = self.kwargs["username"]
-        user_id = AppUser.objects.filter(username=username)
+        user_id = AppUser.objects.filter(username=username)[0]
         queryset = Following.objects.filter(user=user_id)
         return queryset
