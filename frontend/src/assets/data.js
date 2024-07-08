@@ -113,6 +113,42 @@ export const friends = [
       "https://i.pinimg.com/564x/1e/34/ba/1e34bad87cac530bea74c84b79129175.jpg",
   },
   {
+    _id: "64df3aec4180b81adea41d327ca48aae",
+    firstName: "Alice",
+    lastName: "Smith",
+    email: "alice.smith@example.com",
+    profession: "Software Engineer",
+    profileUrl:
+      "https://i.pinimg.com/564x/ea/ac/68/eaac682234da55528af9e762437368ad.jpg",
+  },
+  {
+    _id: "64df3aec4180b81adea41d324a6a1094",
+    firstName: "David",
+    lastName: "Lee",
+    email: "david.lee@example.com",
+    profession: "Data Scientist",
+    profileUrl:
+      "https://i.pinimg.com/564x/1c/fe/47/1cfe4755d6a151b9418abf823f125641.jpg",
+  },
+  {
+    _id: "64df3aec4180b81adea41d32b72d1eac",
+    firstName: "Emily",
+    lastName: "Brown",
+    email: "emily.brown@example.com",
+    profession: "Content Writer",
+    profileUrl:
+      "https://i.pinimg.com/564x/17/ed/b9/17edb990dd7dd8f48aa93db653d403d5.jpg",
+  },
+  {
+    _id: "64df3aec4180b81adea41d3296e2d03e",
+    firstName: "Jessica",
+    lastName: "Williams",
+    email: "jessica.williams@example.com",
+    profession: "Ai Specialist",
+    profileUrl:
+      "https://i.pinimg.com/736x/c3/e2/45/c3e245eaf37562da7b4def122cda8a7a.jpg",
+  },
+  {
     _id: "64df39704180b81adfe41d0b",
     firstName: "Ahmed",
     lastName: "Ali",
@@ -125,7 +161,7 @@ export const friends = [
     firstName: "Alice",
     lastName: "Brethan",
     profession: "Software Engineer",
-    email: "samurai24@gmail.com",
+    email: "alicebre34@gmail.com",
   },
 ];
 
@@ -147,15 +183,15 @@ export const requests = [
 export const suggest = [
     {
         _id: "64df3aec4180b81adfe41d32",
-        ...friends[0],
+        ...friends[3],
     },
     {
         _id: "64df39704180b81adfe41d0b",
-        ...friends[1],
+        ...friends[4],
     },
     {
         _id: "64df424b4a4c0d47b5369f65",
-        ...friends[2],
+        ...friends[5],
     },
 ];
 export const posts = [
