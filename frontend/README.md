@@ -27,8 +27,9 @@ Before you begin, ensure you have the following installed on your machine:
    git clone https://github.com/salah-koulal/TALX.git
    ```
 2. **Navigate to the project directory:**
-
+```sh
 cd TALX/frontend
+```
 
 3. **Install dependencies:**
 ```sh
