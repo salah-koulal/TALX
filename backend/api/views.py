@@ -6,8 +6,14 @@ from .serializers import (
     UserRegisterSerializer,
     UserLoginSerializer,
     UserSerializer,
+    PostSerializer,
+    LikePostSerializer,
+    ProfileSerializer,
+    CommentSerializer,
+    FollowingSerializer,
 )
-from rest_framework import permissions, status
+from .models import Profile, Post, LikePost, Comment, Following
+from rest_framework import permissions, status, generics
 from .validations import custom_validation, validate_email, validate_password
 
 
@@ -59,3 +65,36 @@ class UserView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response({"user": serializer.data}, status=status.HTTP_200_OK)
+
+
+# add permission classes later
+class PostsView(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+
+class PostView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+
+class ProfilesView(generics.ListCreateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+
+
+class ProfileView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    lookup_field = "author.username"
+
+
+class CommentsView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    lookup_field = "post"
+
+
+class LikePostView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = LikePost.objects.all()
+    serializer_class = LikePostSerializer
