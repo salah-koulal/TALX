@@ -1,5 +1,5 @@
 
-# Social Media Application
+# TALX
 
 This is a social media application built using Django, MySQL, and SQLAlchemy. It allows users to create profiles, connect with friends, post updates, and interact with others in a social networking environment.
 
