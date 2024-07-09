@@ -13,7 +13,8 @@ from .serializers import (
     CommentSerializer,
     FollowingSerializer,
 )
-from .models import Profile, Post, LikePost, Comment, Following, AppUser
+from .models import Profile, Post, LikePost, Comment, Following
+from django.contrib.auth.models import User
 from rest_framework import permissions, status, generics
 from .validations import custom_validation, validate_email, validate_password
 
@@ -37,14 +38,10 @@ class UserLogin(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = (SessionAuthentication,)
 
-    ##
     def post(self, request):
-        data = request.data
-        assert validate_email(data)
-        assert validate_password(data)
-        serializer = UserLoginSerializer(data=data)
+        serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            user = serializer.check_user(data)
+            user = serializer.check_user(request.data)
             login(request, user)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -62,7 +59,6 @@ class UserView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
 
-    ##
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response({"user": serializer.data}, status=status.HTTP_200_OK)
@@ -150,7 +146,7 @@ class FollowUserView(generics.CreateAPIView):
     def perform_create(self, serializer):
         if serializer.is_valid():
             followed_user = get_object_or_404(
-                AppUser, username=self.kwargs["username"]
+                User, username=self.kwargs["username"]
             )
             serializer.save(
                 followed_user=followed_user, user=self.request.user
@@ -165,6 +161,6 @@ class FollowingView(generics.ListAPIView):
 
     def get_queryset(self):
         username = self.kwargs["username"]
-        user_id = AppUser.objects.filter(username=username)[0]
+        user_id = User.objects.filter(username=username)[0]
         queryset = Following.objects.filter(user=user_id)
         return queryset
