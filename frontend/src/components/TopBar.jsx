@@ -29,7 +29,7 @@ const TopBar = () => {
   const handleSearch = async (data) => {};
 
   return (
-    <div className="topbar w-full flex items-center justify-between py-3 md:py-6 px-4 lg:py-2 bg-primary">
+    <div className="topbar w-full flex items-center justify-between rounded-lg py-3 md:py-6 px-4 lg:py-2 bg-primary">
       <Link to="/" className="flex gap-2 items-center">
         <div className="w-full flex gap-2 items-center mb-6">
           <img
