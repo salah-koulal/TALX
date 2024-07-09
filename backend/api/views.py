@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model, login, logout
+from django.shortcuts import get_object_or_404
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,7 +13,8 @@ from .serializers import (
     CommentSerializer,
     FollowingSerializer,
 )
-from .models import Profile, Post, LikePost, Comment, Following, AppUser
+from .models import Profile, Post, LikePost, Comment, Following
+from django.contrib.auth.models import User
 from rest_framework import permissions, status, generics
 from .validations import custom_validation, validate_email, validate_password
 
@@ -36,14 +38,10 @@ class UserLogin(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = (SessionAuthentication,)
 
-    ##
     def post(self, request):
-        data = request.data
-        assert validate_email(data)
-        assert validate_password(data)
-        serializer = UserLoginSerializer(data=data)
+        serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            user = serializer.check_user(data)
+            user = serializer.check_user(request.data)
             login(request, user)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -61,17 +59,24 @@ class UserView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
 
-    ##
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response({"user": serializer.data}, status=status.HTTP_200_OK)
 
 
-# add permission classes later
+# add auth password reset later
+
+
 class PostsView(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save(author=self.request.user)
+        else:
+            print(serializer.errors)
 
 
 class PostView(generics.RetrieveUpdateDestroyAPIView):
@@ -80,7 +85,7 @@ class PostView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PostSerializer
 
 
-class ProfilesView(generics.ListCreateAPIView):
+class ProfilesView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
@@ -104,8 +109,11 @@ class PostCommentsView(generics.ListCreateAPIView):
         return queryset
 
     def perform_create(self, serializer):
-        post = get_object_or_404(Post, id=self.kwargs["post_id"])
-        serializer.save(post=post)
+        if serializer.is_valid():
+            post = get_object_or_404(Post, id=self.kwargs["post_id"])
+            serializer.save(post=post, author=self.request.user)
+        else:
+            print(serializer.errors)
 
 
 class CommentsView(generics.RetrieveUpdateDestroyAPIView):
@@ -124,8 +132,11 @@ class LikePostView(generics.ListCreateAPIView):
         return queryset
 
     def perform_create(self, serializer):
-        post = get_object_or_404(Post, id=self.kwargs["post_id"])
-        serializer.save(post=post)
+        if serializer.is_valid():
+            post = get_object_or_404(Post, id=self.kwargs["post_id"])
+            serializer.save(post=post, author=self.request.user)
+        else:
+            print(serializer.errors)
 
 
 class FollowUserView(generics.CreateAPIView):
@@ -133,8 +144,15 @@ class FollowUserView(generics.CreateAPIView):
     serializer_class = FollowingSerializer
 
     def perform_create(self, serializer):
-        followed_user = get_object_or_404(AppUser, id=self.kwargs["username"])
-        serializer.save(followed_user=followed_user)
+        if serializer.is_valid():
+            followed_user = get_object_or_404(
+                User, username=self.kwargs["username"]
+            )
+            serializer.save(
+                followed_user=followed_user, user=self.request.user
+            )
+        else:
+            print(serializer.errors)
 
 
 class FollowingView(generics.ListAPIView):
@@ -143,6 +161,6 @@ class FollowingView(generics.ListAPIView):
 
     def get_queryset(self):
         username = self.kwargs["username"]
-        user_id = AppUser.objects.filter(username=username)
+        user_id = User.objects.filter(username=username)[0]
         queryset = Following.objects.filter(user=user_id)
         return queryset
