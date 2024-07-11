@@ -9,6 +9,10 @@ class Profile(models.Model):
         upload_to="profile_images",
         default="profile_images/blank-profile-picture.png",
     )
+    profession = models.CharField(max_length=100, blank=True)
+    location = models.CharField(max_length=100, blank=True)
+    verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.username
@@ -19,20 +23,26 @@ class Post(models.Model):
     content = models.TextField()
     image = models.ImageField(upload_to="post_images/", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    type = models.CharField(
-        max_length=4, choices=[("meme", "Meme"), ("info", "Info")]
+    type = (
+        models.CharField(
+            max_length=4, choices=[("meme", "Meme"), ("info", "Info")]
+        ),
+    )
+    likes = models.ManyToManyField(
+        User, related_name="liked_posts", blank=True
     )
 
     def __str__(self):
         return f"{self.author.username}'s post"
 
 
-class LikePost(models.Model):
+"""class LikePost(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.author.username} likes {self.post}"
+        """
 
 
 class Comment(models.Model):
@@ -42,16 +52,16 @@ class Comment(models.Model):
     content = models.CharField(max_length=500)
 
 
-class Following(models.Model):
-    user = models.ForeignKey(
+class Follow(models.Model):
+    follower = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="following"
     )
-    followed_user = models.ForeignKey(
+    followed = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="followers"
     )
 
     class Meta:
-        unique_together = ("user", "followed_user")
+        unique_together = ("follower", "followed")
 
     def __str__(self):
-        return f"{self.user.username} follows {self.followed_user.username}"
+        return f"{self.follower.username} follows {self.followed.username}"

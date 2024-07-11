@@ -38,7 +38,16 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = True  # Required for SameSite=None
 
+CSRF_COOKIE_SAMESITE = "Lax"
+# CSRF_COOKIE_SECURE = True  # Required for SameSite=None
+
+# CSRF_USE_SESSIONS = False
+# CSRF_COOKIE_HTTPONLY = False
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
 # Application definition
 
 INSTALLED_APPS = [
@@ -99,7 +108,10 @@ DATABASES = {
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
-    ]
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated"
+    ],
 }
 
 # Password validation
