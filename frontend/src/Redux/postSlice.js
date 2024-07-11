@@ -6,7 +6,7 @@ export const getPosts = createAsyncThunk('posts/getPosts', async () => {
     return response.data;
   });
 
-export const createPost = createAsyncThunk('posts/creaetePost', async (postData) => {
+export const createPost = createAsyncThunk('posts/createPost', async (postData) => {
    const response = await client.post(`/api/posts`, postData);
    return response.data;
 });

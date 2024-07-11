@@ -7,12 +7,21 @@ import { client } from "../client.js";
 import { BsFiletypeGif, BsPersonFillAdd } from "react-icons/bs";
 
 const SuggestedFriends = () => {
+  const { user } = useSelector((state) => state.user)
   const [suggestedFriends, setSuggestedFriends] = useState(null);
   console.log("friend sug", suggestedFriends);
   const getProfiles = async () => {
-    const profiles = await client.get('/api/profiles')
-    setSuggestedFriends(profiles.data);
+    const profiles = await client.get('/api/profiles');
+    const suggestedProfiles = profiles.data.filter(profile => profile.id !== user.id).slice(0, 5);
+    setSuggestedFriends(suggestedProfiles);
   }
+
+  const handleFollow = async () => {
+    const resp = await client.post(`/api/users/${user.user.username}/follow`);
+    console.log("resp follow", resp.data)
+    return resp.data;
+  };
+
   useEffect(() =>{
     getProfiles();
   }, []);
@@ -51,7 +60,7 @@ const SuggestedFriends = () => {
                   <div className="flex gap-1">
                     <button
                       className="bg-[#0459a430] text-sm text-white p-1 rounded"
-                      onClick={() => {}}
+                      onClick={handleFollow}
                     >
                       <BsPersonFillAdd size={20} className="text-[#0095f6]" />
                     </button>

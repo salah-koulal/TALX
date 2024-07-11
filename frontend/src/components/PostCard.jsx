@@ -156,7 +156,7 @@ const PostCard = ({ post }) => {
   return (
     <div className="mb-2 bg-primary p-4 rounded-xl">
       <div className="flex gap-3 items-center mb-2">
-        <Link to={"/profile/" + post?.userId?._id}>
+        <Link to={"/profile/" + post?.author?.username}>
           <img
             src={post?.image ?? NoProfile}
             alt={post?.author?.first_name}

@@ -9,6 +9,8 @@ import {
   ProfileCard,
   TextInput,
   TopBar,
+  FriendReq,
+  SuggestedFriends
 } from "../components";
 import { requests, friends, suggest, posts } from "../assets/data";
 import { BsFiletypeGif, BsPersonFillAdd } from "react-icons/bs";
@@ -203,7 +205,7 @@ const Home = () => {
         {/* RIGHT */}
         <div className="hidden w-1/4 h-full lg:flex flex-col gap-8 overflow-y-auto">
           {/* Friend Req */}
-          <div className="w-full bg-primary shadow-inner shadow-[#94949457]    rounded-lg px-6 py-5">
+          {/* <div className="w-full bg-primary shadow-inner shadow-[#94949457]    rounded-lg px-6 py-5">
             <div className="flex items-center justify-between text-xl text-ascent-1 pb-2 border-b border-[#66666645]">
               <span>Friend Request</span>
               <span>{friendRequest?.length}</span>
@@ -243,10 +245,11 @@ const Home = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
+          <FriendReq />
 
           {/* Suggested Friends */}
-          <div className="w-full bg-primary shadow-inner shadow-[#94949457]   rounded-lg px-5 py-5">
+          {/* <div className="w-full bg-primary shadow-inner shadow-[#94949457]   rounded-lg px-5 py-5">
             <div className="flex items-center justify-between text-lg text-ascent-1 border-b border-[#66666645]">
               <span>Friend Suggestion</span>
             </div>
@@ -287,7 +290,9 @@ const Home = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
+          <SuggestedFriends />
+
         </div>
       </div>
     </div>

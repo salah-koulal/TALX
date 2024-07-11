@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { LiaEditSolid } from "react-icons/lia";
@@ -13,17 +13,20 @@ import { CiLocationOn } from "react-icons/ci";
 import moment from "moment";
 import { NoProfile } from "../assets/idx.js";
 import { UpdateProfile } from "../Redux/userSlice";
-import { getUser } from "../Redux/userSlice";
+import EditProfile from "./EditProfile.jsx";
+import { getUser, getFollowing } from "../Redux/userSlice";
 
 const ProfileCard = () => {
   const { user } = useSelector((state) => state.user);
+  const [edit, setEdit] = useState(false);
   const dispatch = useDispatch();
+  const { following } = useSelector((state) => state.user);
 
   return (
     <div>
       <div className="w-full bg-primary flex flex-col items-center  shadow-inner shadow-[#94949457]  rounded-xl px-6 py-4 ">
         <div className="w-full flex items-center justify-between border-b pb-5 border-[#66666645]">
-          <Link to={"/profile/" + user?._id} className="flex gap-2">
+          <Link to={"/profile/" + user?.user?.username} className="flex gap-2">
             <img
               src={user?.profileimg ?? NoProfile}
               alt={user?.user?.email}
@@ -34,6 +37,9 @@ const ProfileCard = () => {
               <p className="text-lg font-medium text-ascent-1">
                 {user?.user?.first_name} {user?.user?.last_name}
               </p>
+              {/* <p className="text-lg font-medium text-ascent-2">
+                @{user?.user?.username}
+              </p> */}
               <span className="text-ascent-2">
                 {(user?.profession && user?.profession !== '') ? user?.profession : "Add Profession"}
               </span>
@@ -45,7 +51,8 @@ const ProfileCard = () => {
               <LiaEditSolid
                 size={22}
                 className="text-red cursor-pointer "
-                onClick={() => dispatch(UpdateProfile(true))}
+                /*onClick={() => dispatch(UpdateProfile(true))}*/
+                onClick={() => setEdit(true)}
               />
             ) : (
               <button
@@ -55,6 +62,7 @@ const ProfileCard = () => {
                 <BsPersonFillAdd size={20} className="text-[#f9667ae8]" />
               </button>
             )}
+            {edit && <EditProfile close={() => {setEdit(false)}} />}
           </div>
         </div>
         {/* Brief Bio */}
@@ -72,12 +80,12 @@ const ProfileCard = () => {
 
         <div className="w-full flex flex-col gap-2 py-4 border-b border-[#66666645]">
           <p className="text-xl text-ascent-1 font-semibold">
-            {/*user?.friends?.length*/} Friends
+            {following?.length} Friends
           </p>
 
           <div className="flex items-center justify-between">
             <span className="text-ascent-2">Who viewed your profile</span>
-            <span className="text-ascent-1 text-lg">{/*user?.views?.length*/}views</span>
+            <span className="text-ascent-1 text-lg">{/*user?.views?.length*/}2 views</span>
           </div>
 
           <span className="text-base text-[#0095f6]">

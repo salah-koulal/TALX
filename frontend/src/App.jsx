@@ -1,12 +1,15 @@
 import {Outlet, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import {useSelector} from "react-redux"
 import { Home, Login, Profile, Register, ResetPassword } from "./pages";
+import { Loading } from "./components";
 import { user } from "./assets/data.js";
 
 function Layout(){
-  const {user} = useSelector(state => state.user) ;
+  const { user, status } = useSelector(state => state.user) ;
   const location = useLocation();
-  console.log("Layout: User state", user); 
+  console.log("Layout: User state", user);
+  console.log("Layout: Status", status);
+  if (status === "loading") return <Loading />;
   return user?(
     <Outlet/>
   ): (
@@ -22,7 +25,7 @@ function App() {
         {/* Protected Routes */}
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/profile/:id?" element={<Profile />} />
+          <Route path="/profile/:username?" element={<Profile />} />
         </Route>
 
         {/* Public Routes */}

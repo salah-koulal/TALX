@@ -8,6 +8,11 @@ export const getUser = createAsyncThunk('user/getUser', async () => {
   return profile.data
 });
 
+export const putProfile = createAsyncThunk('profile/putProfile', async ({ username, data }) => {
+  const profile = await client.put(`/api/profiles/${username}`, data);
+  return profile.data;
+});
+
 export const logoutUser = createAsyncThunk('user/logout', async () => {
   await client.post('/api/logout', { withCredintials: true });
 });
@@ -68,6 +73,10 @@ const userSlice = createSlice({
         if (JSON.stringify(state.following) !== JSON.stringify(action.payload)) {
           state.following = action.payload;
         }
+      })
+      .addCase(putProfile.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload;
       })
   }
 });
