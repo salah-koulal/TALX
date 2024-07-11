@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import logo from "../assets/logo_v2.png";
@@ -8,6 +8,7 @@ import { ImConnection } from "react-icons/im";
 import { AiOutlineInteraction } from "react-icons/ai";
 import { TextInput, Loading, CustomButton } from "../components";
 import bgImg from "../assets/img.png";
+import { client } from "../client";
 
 const Register = () => {
   const {
@@ -18,7 +19,26 @@ const Register = () => {
   } = useForm({
     mode: "onChange",
   });
-  const onSubmit = async (data) => {};
+  const navigate = useNavigate();
+
+  const onSubmit = async (data) => {
+    console.log(data);
+    if (data.password == data.cPassword) {
+      try {
+        await client.post('/api/register', {
+          "first_name": data.firstName,
+          "last_name": data.lastName,
+          "email": data.email,
+          "username": data.username,
+          "password": data.password,
+        });
+
+        navigate('/login');
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
 
   const [errMsg, setErrMsg] = useState("");
   const [isSumbimitting, setIsSumbimitting] = useState(false);
@@ -76,6 +96,18 @@ const Register = () => {
               styles="w-full "
               labelStyle="ml-2"
               error={errors.email ? errors.email.message : ""}
+            />
+            <TextInput
+              name="username"
+              placeholder="username"
+              label="username"
+              type="text"
+              register={register("username", {
+                required: "Username is required",
+              })}
+              styles="w-full "
+              labelStyle="ml-2"
+              error={errors.username ? errors.username.message : ""}
             />
 
             <div className="w-full flex flex-col lg:flex-row gap-1 md:gap-2">

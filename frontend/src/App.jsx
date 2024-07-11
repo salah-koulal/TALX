@@ -6,11 +6,11 @@ import { user } from "./assets/data.js";
 function Layout(){
   const {user} = useSelector(state => state.user) ;
   const location = useLocation();
-  // console.log({user}); 
-  return user?.token?(
+  console.log("Layout: User state", user); 
+  return user?(
     <Outlet/>
   ): (
-    <Navigate to='/home' state= {{from: location}} replace/>
+    <Navigate to='/login' state= {{from: location}} replace/>
   );
 }
 function App() {
@@ -19,10 +19,13 @@ function App() {
   return (
     <div data-theme={theme} className="w-full min-h-[100vh]">
       <Routes>
-        <Route element={<Layout />}></Route>
-        <Route path="/" element={<Home />} />
-        <Route path="/profile/:id?" element={<Profile />} />
+        {/* Protected Routes */}
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/profile/:id?" element={<Profile />} />
+        </Route>
 
+        {/* Public Routes */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/reset-password" element={<ResetPassword />} />

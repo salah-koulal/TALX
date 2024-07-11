@@ -24,7 +24,7 @@ export default function Auth() {
     .catch(function(error) {
       setCurrentUser(false);
     });
-  }, []);
+  }, [currentUser]);
   
     function update_form_btn() {
       if (registrationToggle) {
@@ -49,10 +49,11 @@ export default function Auth() {
         client.post(
           "/api/login",
           {
-            email: email,
+            username: username,
             password: password
           }
         ).then(function(res) {
+          
           setCurrentUser(true);
         });
       });
@@ -63,7 +64,7 @@ export default function Auth() {
       client.post(
         "/api/login",
         {
-          email: email,
+          username: username,
           password: password
         }
       ).then(function(res) {
@@ -102,21 +103,24 @@ export default function Auth() {
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
         <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
           <form onSubmit={registrationToggle ? submitRegistration : submitLogin} className="mb-4">
+            
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                Email
-              </label>
-              <input 
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="email"
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-              />
-            </div>
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+                  Username
+                </label>
+                <input 
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  id="username"
+                  type="text"
+                  placeholder="Username"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  required
+                />
+              </div>
             {registrationToggle && (
+              <>
+              
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
                   Username
@@ -131,6 +135,22 @@ export default function Auth() {
                   required
                 />
               </div>
+              <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                Email
+              </label>
+              <input 
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="email"
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+              />
+              
+            </div>
+              </>
             )}
             <div className="mb-6">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">

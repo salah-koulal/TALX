@@ -9,6 +9,9 @@ import TextInput from "./TextInput";
 import Loading from "./Loading";
 import CustomButton from "./CustomButton";
 import { postComments } from "../assets/data";
+import { useSelector, useDispatch } from "react-redux";
+import { deletePost, updatePost, getPosts } from "../Redux/postSlice";
+import { client } from "../client";
 
 const ReplyCard = ({ reply, user, handleLike }) => {
   return (
@@ -66,7 +69,13 @@ const CommentForm = ({ user, id, replyAt, getComments }) => {
     mode: "onChange",
   });
 
-  const onSubmit = async (data) => {};
+  const onSubmit = async (data) => {
+    await client.post(`/api/posts/${id}/comments`, {
+      'post': id,
+      'content': data.comment,
+    });
+    getComments();
+  };
 
   return (
     <form
@@ -75,7 +84,7 @@ const CommentForm = ({ user, id, replyAt, getComments }) => {
     >
       <div className="w-full flex items-center gap-2 py-4">
         <img
-          src={user?.profileUrl ?? NoProfile}
+          src={user?.profileimg ?? NoProfile}
           alt="User Image"
           className="w-10 h-10 rounded-full object-cover"
         />
@@ -118,29 +127,39 @@ const CommentForm = ({ user, id, replyAt, getComments }) => {
   );
 };
 
-const PostCard = ({ post, user, deletePost, likePost }) => {
+const PostCard = ({ post }) => {
+  const { user } = useSelector((state) => state.user);
   const [showAll, setShowAll] = useState(0);
   const [showReply, setShowReply] = useState(0);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [replyComments, setReplyComments] = useState(0);
   const [showComments, setShowComments] = useState(0);
+  const dispatch = useDispatch();
 
-  const getComments = async () => {
+  console.log(post)
+  const handleDeletePost = (id) => {
+    dispatch(deletePost(id));
+  }
+  const getComments = async (post_id) => {
     setReplyComments(0);
-
-    setComments(postComments);
+    const fetchedComments = await client.get(`api/posts/${post_id}/comments`);
+    setComments(fetchedComments.data);
     setLoading(false);
   };
-  const handleLike = async () => {};
+
+  const handlePostLike = async (post_id) => {
+    await client.post(`api/posts/${post_id}/like/`);
+    dispatch(getPosts());
+  };
 
   return (
     <div className="mb-2 bg-primary p-4 rounded-xl">
       <div className="flex gap-3 items-center mb-2">
         <Link to={"/profile/" + post?.userId?._id}>
           <img
-            src={post?.userId?.profileUrl ?? NoProfile}
-            alt={post?.userId?.firstName}
+            src={post?.image ?? NoProfile}
+            alt={post?.author?.first_name}
             className="w-14 h-14 object-cover rounded-full"
           />
         </Link>
@@ -149,26 +168,26 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
           <div className="">
             <Link to={"/profile/" + post?.userId?._id}>
               <p className="font-medium text-lg text-ascent-1">
-                {post?.userId?.firstName} {post?.userId?.lastName}
+                {post?.author?.first_name} {post?.author?.last_name}
               </p>
             </Link>
-            <span className="text-ascent-2">{post?.userId?.location}</span>
+            <span className="text-ascent-2">{/*post?.userId?.location*/}location</span>
           </div>
 
           <span className="text-ascent-2">
-            {moment(post?.createdAt ?? "2023-05-25").fromNow()}
+            {moment(post?.created_at ?? "2023-05-25").fromNow()}
           </span>
         </div>
       </div>
 
       <div>
         <p className="text-ascent-2">
-          {showAll === post?._id
-            ? post?.description
-            : post?.description.slice(0, 300)}
+          {showAll === post?.id
+            ? post?.content
+            : post?.content.slice(0, 300)}
 
-          {post?.description?.length > 301 &&
-            (showAll === post?._id ? (
+          {post?.content?.length > 301 &&
+            (showAll === post?.id ? (
               <span
               className="text-[#0095f6] ml-2 font-mediu cursor-pointer"
               onClick={() => setShowAll(0)}
@@ -178,7 +197,7 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
             ) : (
               <span
                 className="text-[#0095f6] ml-2 font-medium cursor-pointer"
-                onClick={() => setShowAll(post?._id)}
+                onClick={() => setShowAll(post?.id)}
               >
                 Show More
               </span>
@@ -198,30 +217,30 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
         className="mt-4 flex justify-between items-center px-3 py-2 text-ascent-2
       text-base border-t border-[#66666645]"
       >
-        <p className="flex gap-2 items-center text-base cursor-pointer">
-          {post?.likes?.includes(user?._id) ? (
+        <span className="flex gap-2 items-center text-base cursor-pointer" onClick={() => handlePostLike(post?.id)}>
+          {post?.likes?.includes(user?.id) ? (
             <BiSolidLike size={20} color="blue" />
           ) : (
             <BiLike size={20} />
           )}
           {post?.likes?.length} Likes
-        </p>
+        </span>
 
         <p
           className="flex gap-2 items-center text-base cursor-pointer"
           onClick={() => {
-            setShowComments(showComments === post._id ? null : post._id);
-            getComments(post?._id);
+            setShowComments(showComments === post.id ? null : post.id);
+            getComments(post?.id);
           }}
         >
           <BiComment size={20} />
           {post?.comments?.length} Comments
         </p>
 
-        {user?._id === post?.userId?._id && (
+        {user?.id === post?.author?.id && (
           <div
             className="flex gap-1 items-center text-base text-ascent-1 cursor-pointer"
-            onClick={() => deletePost(post?._id)}
+            onClick={() => handleDeletePost(post?.id)}
           >
             <MdOutlineDeleteOutline size={20} />
             <span>Delete</span>
@@ -230,41 +249,41 @@ const PostCard = ({ post, user, deletePost, likePost }) => {
       </div>
 
       {/* COMMENTS */}
-      {showComments === post?._id && (
+      {showComments === post?.id && (
         <div className="w-full mt-4 border-t border-[#66666645] pt-4 ">
           <CommentForm
             user={user}
-            id={post?._id}
-            getComments={() => getComments(post?._id)}
+            id={post?.id}
+            getComments={() => getComments(post?.id)}
           />
 
           {loading ? (
             <Loading />
           ) : comments?.length > 0 ? (
             comments?.map((comment) => (
-              <div className="w-full py-2" key={comment?._id}>
+              <div className="w-full py-2" key={comment?.id}>
                 <div className="flex gap-3 items-center mb-1">
-                  <Link to={"/profile/" + comment?.userId?._id}>
+                  <Link to={"/profile/" + comment?.author?.id}>
                     <img
                       src={comment?.userId?.profileUrl ?? NoProfile}
-                      alt={comment?.userId?.firstName}
+                      alt={comment?.author?.firstName}
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   </Link>
                   <div>
-                    <Link to={"/profile/" + comment?.userId?._id}>
+                    <Link to={"/profile/" + comment?.author?.username}>
                       <p className="font-medium text-base text-ascent-1">
-                        {comment?.userId?.firstName} {comment?.userId?.lastName}
+                        {comment?.author?.firstName} {comment?.author?.lastName}
                       </p>
                     </Link>
                     <span className="text-ascent-2 text-sm">
-                      {moment(comment?.createdAt ?? "2023-05-25").fromNow()}
+                      {moment(comment?.created_at ?? "2023-05-25").fromNow()}
                     </span>
                   </div>
                 </div>
 
                 <div className="ml-12">
-                  <p className="text-ascent-2">{comment?.comment}</p>
+                  <p className="text-ascent-2">{comment?.content}</p>
 
                   <div className="mt-2 flex gap-6">
                     <p className="flex gap-2 items-center text-base text-ascent-2 cursor-pointer">

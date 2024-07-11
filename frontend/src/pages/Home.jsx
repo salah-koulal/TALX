@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { NoProfile } from "../assets/idx.js";
 import { useSelector } from "react-redux";
@@ -15,21 +15,61 @@ import { BsFiletypeGif, BsPersonFillAdd } from "react-icons/bs";
 import { BiImages, BiSolidVideo } from "react-icons/bi";
 import { useForm } from "react-hook-form";
 import PostCard from "../components/PostCard.jsx";
+import { selectAllPosts } from "../Redux/postSlice.js";
+import { client } from "../client.js";
+import { useDispatch } from "react-redux";
+import { getUser } from "../Redux/userSlice.js"
+import { getPosts, createPost } from "../Redux/postSlice.js";
+
+const test = async () => {
+  const user = await client.get('/api/user', { withCredentials: true });
+  //console.log(user);
+  const profile = await client.get(`/api/profiles/${user.data.user.username}`);
+  return profile.data
+}
 
 const Home = () => {
   const { user } = useSelector((state) => state.user);
+  //console.log(test());
+  console.log("user", user);
+  const posts = useSelector(selectAllPosts);
+  const postStatus = useSelector(state => state.posts.status);
+  console.log("posts", posts);
   const [friendRequest, setFriendRequest] = useState(requests);
   const [suggestedFriends, setSuggestedFriends] = useState(suggest);
   const [errMsg, setErrMsg] = useState("");
   const [file, setFile] = useState(null);
   const [posting, setPosting] = useState(false);
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // dispatch(getUser());
+    if (postStatus === "idle") {
+      dispatch(getPosts());
+    }
+  }, [dispatch, postStatus])
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const handlePostSubmit = async (data) => {};
+  const handlePostSubmit = (data) => {
+    /*await client.post('/api/posts', {
+      content: data.description,
+      type: 'meme',
+      //Image
+    });
+    dispatch(getPosts())*/
+    const formData = new FormData();
+    formData.append('content', data.description);
+    formData.append('type', 'meme');
+    if (file) {
+      formData.append('image', file);
+    }
+    dispatch(createPost(formData));
+  };
   return (
     <div className="w-full px-20 lg:px-10 pb-20 2xl:px-40 bg-bgColor  h-screen overflow-hidden">
       <TopBar />
@@ -37,8 +77,8 @@ const Home = () => {
       <div className="w-full flex gap-2 lg:gap-4 pt-5 pb-10 h-full">
         {/* LEFT */}
         <div className="hidden w-1/3 lg:w-1/4 h-full md:flex flex-col gap-6 overflow-y-auto">
-          <ProfileCard user={user} />
-          <FriendsCard friends={user.friends} />
+          <ProfileCard />
+          <FriendsCard />
         </div>
 
         {/* CENTER */}
@@ -49,8 +89,8 @@ const Home = () => {
           >
             <div className="w-full flex items-center gap-2 py-4 border-b border-[#66666645]">
               <img
-                src={user?.profileUrl ?? NoProfile}
-                alt={user?.email}
+                src={user?.profileimg ?? NoProfile}
+                alt={user?.user?.email}
                 className="w-14 h-14 object-cover rounded-full"
               />
               <TextInput
@@ -146,11 +186,11 @@ const Home = () => {
           ) : posts?.length > 0 ? (
             posts?.map((post) => (
               <PostCard
-                key={post?._id}
+                key={post?.id}
                 post={post}
-                user={user}
+                /*user={user}
                 deletePost={() => {}}
-                likePost={() => {}}
+                likePost={() => {}}*/
               />
             ))
           ) : (

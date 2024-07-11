@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import logo from "../assets/logo_v2.png";
@@ -8,6 +8,8 @@ import { ImConnection } from "react-icons/im";
 import { AiOutlineInteraction } from "react-icons/ai";
 import { TextInput, Loading, CustomButton } from "../components";
 import bgImg from "../assets/img.png";
+import { client } from "../client";
+import { getUser } from "../Redux/userSlice";
 
 const Login = () => {
   const {
@@ -17,13 +19,26 @@ const Login = () => {
   } = useForm({
     mode: "onChange",
   });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const onSubmit = async (data) => {
-	
+    try {
+      await client.post('/api/login', {
+        "username": data.username,
+        "password": data.password
+      });
+      await dispatch(getUser());
+      const from = location.state?.from?.pathname || '/';
+      navigate(from, { replace: true });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const [errMsg, setErrMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const dispatch = useDispatch();
   return (
     <div className="bg-bgColor w-full h-[100vh] flex items-center justify-center p-6">
       <div className="w-full md:w-2/3 h-fit lg:h-full 2xl:h-5/6 py-8 lg:py-0 flex bg-primary rounded-xl overflow-hidden shadow-xl">
@@ -40,16 +55,16 @@ const Login = () => {
           <span className="text-sm mt-2 text-ascent-2">Welcome Back</span>
           <form className="py-8 flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
             <TextInput
-              name="email"
-              placeholder="email@example.com"
-              label="email"
-              type="email"
-              register={register("email", {
-                required: "Email Address is required",
+              name="username"
+              placeholder="Username"
+              label="username"
+              type="text"
+              register={register("username", {
+                required: "Username is required",
               })}
               styles="w-full rounded-full"
               labelStyle="ml-2"
-              error={errors.email ? errors.email.message : ""}
+              error={errors.username ? errors.username.message : ""}
             />
 
             <TextInput
@@ -131,7 +146,7 @@ const Login = () => {
 
           <div className="mt-16 text-center">
             <p className="text-white text-base">
-              Connect with friedns & have share for fun
+              Connect with friends & have share for fun
             </p>
             <span className="text-sm text-white/80">
               Share knowledge with students and the world.
