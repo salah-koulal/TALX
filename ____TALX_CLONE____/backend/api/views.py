@@ -103,7 +103,7 @@ class UserLogin(APIView):
         password = request.data.get('password')
 
         # Check if the username exists
-        if not User.objects.filter(username=username).exists():
+        if not Users.objects.filter(username=username).exists():
             return Response({'detail': 'Invalid username'}, status=status.HTTP_401_UNAUTHORIZED)
 
         user = authenticate(request, username=username, password=password)
@@ -113,6 +113,11 @@ class UserLogin(APIView):
             return Response({'detail': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
 
         # If the user is authenticated, log them in
-        login(request, user)
-        serializer = UsersSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # login(request, user)
+        # serializer = UsersSerializer(user)
+        # obj = {
+        #     "username":user.username, "is_active":user.is_active, "is_staff":user.is_staff,
+        #     "first_name":user.first_name, "last_name":user.last_name, "ID":user.ID
+        # }
+        obj = Users.objects.filter(username=username).first().to_dict()
+        return Response(obj, status=status.HTTP_200_OK)

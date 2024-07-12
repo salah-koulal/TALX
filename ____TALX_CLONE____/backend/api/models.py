@@ -18,8 +18,9 @@ class Base(models.Model):
         new_dict.pop('_state', None)
         if 'date_joined' in new_dict:
             new_dict['date_joined'] = new_dict['date_joined'].strftime(time_format)
-        # if 'password' in new_dict:
+        if 'password' in new_dict:
             # new_dict['password'] = make_password(new_dict['password'])
+            new_dict.pop("password")
         if 'user_id' in new_dict:
             new_dict['user_id'] = str(new_dict['user_id'])
         return new_dict

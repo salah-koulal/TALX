@@ -9,7 +9,7 @@ curl -X POST http://127.0.0.1:8000/api/register/ \
 
 
 user_data = {
-    "email": "Kyoko3@example.com",
+    "email": "Kyoko-sun@example.com",
     "username": "Kyoko",
     "password": "passwordx123",
     "first_name": "first_name",

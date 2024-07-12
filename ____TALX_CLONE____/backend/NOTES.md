@@ -13,7 +13,13 @@
 ./manage.py migrate
 
 ```
-
+```json
+{
+    "admin name":"TALX-ADMIN",
+    "admin email":"TALX-ADMIN-ACC@outlook.com",
+    "admin password":"TALX-PWD_ADMIN_PWD"
+}
+```
 # in  my  Dango social media app  project ____TALX____ im traing to register  a user for test purposes  but there are a n issues
 - running server output :
 ```sh
