@@ -75,6 +75,7 @@ const CommentForm = ({ user, id, replyAt, getComments }) => {
       'content': data.comment,
     });
     getComments();
+    reset();
   };
 
   return (
@@ -144,8 +145,9 @@ const PostCard = ({ post }) => {
   }
   const getComments = async (post_id) => {
     setReplyComments(0);
-    const fetchedComments = await client.get(`api/posts/${post_id}/comments`);
-    setComments(fetchedComments.data);
+    const data = await client.get(`api/posts/${post_id}/comments`);
+    const fetchedComments = data.data
+    setComments(fetchedComments);
     setLoading(false);
   };
 
@@ -185,7 +187,7 @@ const PostCard = ({ post }) => {
                 {post?.author?.first_name} {post?.author?.last_name}
               </p>
             </Link>
-            <span className="text-ascent-2">{/*post?.userId?.location*/}location</span>
+            <span className="text-ascent-2">{profile?.location}</span>
           </div>
 
           <span className="text-ascent-2">
@@ -279,7 +281,7 @@ const PostCard = ({ post }) => {
                 <div className="flex gap-3 items-center mb-1">
                   <Link to={"/profile/" + comment?.author?.id}>
                     <img
-                      src={comment?.userId?.profileUrl ?? NoProfile}
+                      src={user?.profileimg ?? NoProfile}
                       alt={comment?.author?.firstName}
                       className="w-10 h-10 rounded-full object-cover"
                     />

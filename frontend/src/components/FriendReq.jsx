@@ -32,7 +32,7 @@ const FriendReq = () => {
             <span>{friendRequest?.length}</span>
         </div>
         <div className="w-full flex flex-col  gap-4 pt-4">
-            {friendRequest?.map(({ friend }) => (
+            {friendRequest?.map(( friend ) => (
             <div key={friend?.id} className="flex items-center justify-between">
                 <Link
                 to={"/profile" + friend?.user?.username}

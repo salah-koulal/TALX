@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { NoProfile } from "../assets/idx.js";
 import { useSelector, useDispatch } from "react-redux";
-import { getFollowers } from "../Redux/userSlice.js";
+import { getFollowers, getFollowing } from "../Redux/userSlice.js";
 import { client } from "../client.js";
 import { BsFiletypeGif, BsPersonFillAdd } from "react-icons/bs";
 
 const SuggestedFriends = () => {
-  const { user } = useSelector((state) => state.user)
+  const { user } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const [suggestedFriends, setSuggestedFriends] = useState(null);
   console.log("friend sug", suggestedFriends);
   const getProfiles = async () => {
@@ -18,9 +19,10 @@ const SuggestedFriends = () => {
     setSuggestedFriends(suggestedProfiles);
   }
 
-  const handleFollow = async () => {
-    const resp = await client.post(`/api/users/${user.user.username}/follow`);
+  const handleFollow = async (friend) => {
+    const resp = await client.post(`/api/users/${friend.user.username}/follow/`);
     console.log("resp follow", resp.data)
+    dispatch(getFollowing(user?.user?.username));
     return resp.data;
   };
 
@@ -63,7 +65,7 @@ const SuggestedFriends = () => {
                   <div className="flex gap-1">
                     <button
                       className="bg-[#0459a430] text-sm text-white p-1 rounded"
-                      onClick={handleFollow}
+                      onClick={() => {handleFollow(friend)}}
                     >
                       <BsPersonFillAdd size={20} className="text-[#0095f6]" />
                     </button>
