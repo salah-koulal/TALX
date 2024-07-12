@@ -65,18 +65,18 @@ class getCSRFCookie(APIView):
         csrf_token = get_token(request)
         return Response({'csrftoken': csrf_token})
 
-# class UserLogin(APIView):
-#     permission_classes = [permissions.AllowAny]
+class UserLogin(APIView):
+    permission_classes = [permissions.AllowAny]
 
-#     def post(self, request):
-#         username = request.data.get('username')
-#         password = request.data.get('password')
-#         user = authenticate(request, username=username, password=password)
-#         if user is not None:
-#             login(request, user)
-#             serializer = UsersSerializer(user)
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            serializer = UsersSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 class UserLogin(APIView):
     permission_classes = [permissions.AllowAny]
 
