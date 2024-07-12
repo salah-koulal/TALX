@@ -22,7 +22,7 @@ from .serializers import (
     FollowingSerializer,
 )
 from rest_framework.decorators import api_view
-
+from django.contrib.auth.hashers import make_password
 @api_view(['GET'])
 def test(request):
     all_obj = Users.objects.all()
@@ -40,14 +40,27 @@ def test2(request):
 
 
 class UserRegister(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny]  # Allow any user to access this endpoint
 
     def post(self, request):
+        # Validate the incoming data
         clean_data = custom_validation(request.data)
+
+        # Hash the password if it exists in clean_data
+        if "password" in clean_data:
+            clean_data["password"] = make_password(clean_data["password"])
+
+        # Print the cleaned data for debugging purposes
         print(f"\n\n::   clean_data ${clean_data}   >>  \n\n")
+
+        # Create a serializer instance with the cleaned data
         serializer = UsersSerializer(data=clean_data)
+
+        # Check if the serializer data is valid
         if serializer.is_valid(raise_exception=True):
+            # Create the user instance
             user = serializer.create(clean_data)
+
             if user:
                 # Create and save the profile for the new user
                 profile = Profile(user=user)
@@ -57,9 +70,11 @@ class UserRegister(APIView):
                 user_data = serializer.data
                 user_data['profile'] = ProfileSerializer(profile).data
 
+                # Return the user data along with profile data
                 return Response(user_data, status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
 
+        # Return bad request status if the serializer is not valid
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 class getCSRFCookie(APIView):
     def get(self, request):
         csrf_token = get_token(request)
@@ -86,9 +101,18 @@ class UserLogin(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
+
+        # Check if the username exists
+        if not User.objects.filter(username=username).exists():
+            return Response({'detail': 'Invalid username'}, status=status.HTTP_401_UNAUTHORIZED)
+
         user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            serializer = UsersSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Check if the password is incorrect
+        if user is None:
+            return Response({'detail': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # If the user is authenticated, log them in
+        login(request, user)
+        serializer = UsersSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
