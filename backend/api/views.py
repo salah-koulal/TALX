@@ -8,28 +8,15 @@ from .serializers import (
     UserLoginSerializer,
     UserSerializer,
     PostSerializer,
+    LikePostSerializer,
     ProfileSerializer,
     CommentSerializer,
-    FollowSerializer,
+    FollowingSerializer,
 )
-from .models import Profile, Post, Comment, Follow
+from .models import Profile, Post, LikePost, Comment, Following
 from django.contrib.auth.models import User
 from rest_framework import permissions, status, generics
 from .validations import custom_validation, validate_email, validate_password
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.middleware.csrf import get_token
-
-ensure_csrf = method_decorator(ensure_csrf_cookie)
-
-
-class getCSRFCookie(APIView):
-    permission_classes = []
-    authentication_classes = []
-
-    @ensure_csrf
-    def get(self, request):
-        return Response({"csrfToken": get_token(request)})
 
 
 class UserRegister(APIView):
@@ -135,77 +122,45 @@ class CommentsView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CommentSerializer
 
 
-class LikePostView(generics.GenericAPIView):
+class LikePostView(generics.ListCreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
+    serializer_class = LikePostSerializer
 
-    def post(self, request, pk):
-        post = self.get_object()
-        if request.user in post.likes.all():
-            post.likes.remove(request.user)
-            return Response(
-                {"detail": "Post unliked."}, status=status.HTTP_200_OK
+    def get_queryset(self):
+        post_id = self.kwargs["post_id"]
+        queryset = LikePost.objects.filter(post=post_id)
+        return queryset
+
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            post = get_object_or_404(Post, id=self.kwargs["post_id"])
+            serializer.save(post=post, author=self.request.user)
+        else:
+            print(serializer.errors)
+
+
+class FollowUserView(generics.CreateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = FollowingSerializer
+
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            followed_user = get_object_or_404(
+                User, username=self.kwargs["username"]
+            )
+            serializer.save(
+                followed_user=followed_user, user=self.request.user
             )
         else:
-            post.likes.add(request.user)
-            return Response(
-                {"detail": "Post liked."}, status=status.HTTP_200_OK
-            )
+            print(serializer.errors)
 
 
-class PostLikesView(generics.ListAPIView):
+class FollowingView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = UserSerializer
+    serializer_class = FollowingSerializer
 
     def get_queryset(self):
-        post = Post.objects.get(pk=self.kwargs["pk"])
-        return post.likes.all()
-
-
-class FollowUserView(generics.GenericAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = FollowSerializer
-    queryset = User.objects.all()
-    lookup_field = "username"
-
-    def post(self, request, username):
-        user_to_follow = self.get_object()
-        if request.user == user_to_follow:
-            return Response(
-                {"detail": "You cannot follow yourself."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        follow, created = Follow.objects.get_or_create(
-            follower=request.user, followed=user_to_follow
-        )
-        if created:
-            return Response(
-                {"detail": f"You are now following {username}."},
-                status=status.HTTP_201_CREATED,
-            )
-        else:
-            follow.delete()
-            return Response(
-                {"detail": f"You have unfollowed {username}."},
-                status=status.HTTP_200_OK,
-            )
-
-
-class UserFollowersView(generics.ListAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = UserSerializer
-
-    def get_queryset(self):
-        user = User.objects.get(username=self.kwargs["username"])
-        return User.objects.filter(following__followed=user)
-
-
-class UserFollowingView(generics.ListAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = UserSerializer
-
-    def get_queryset(self):
-        user = User.objects.get(username=self.kwargs["username"])
-        return User.objects.filter(followers__follower=user)
+        username = self.kwargs["username"]
+        user_id = User.objects.filter(username=username)[0]
+        queryset = Following.objects.filter(user=user_id)
+        return queryset
