@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import moment from "moment";
 import { NoProfile } from "../assets/idx";
@@ -135,9 +135,10 @@ const PostCard = ({ post }) => {
   const [loading, setLoading] = useState(false);
   const [replyComments, setReplyComments] = useState(0);
   const [showComments, setShowComments] = useState(0);
+  const [profile, setProfile] = useState(null);
   const dispatch = useDispatch();
 
-  console.log(post)
+  console.log("post test", post)
   const handleDeletePost = (id) => {
     dispatch(deletePost(id));
   }
@@ -148,17 +149,30 @@ const PostCard = ({ post }) => {
     setLoading(false);
   };
 
+  const getProfile = async (post) => {
+    const profile = await client.get(`/api/profiles/${post?.author?.username}`);
+    const data = await profile.data;
+    setProfile(data);
+  }
+
+
   const handlePostLike = async (post_id) => {
     await client.post(`api/posts/${post_id}/like/`);
     dispatch(getPosts());
   };
+
+  useEffect(() => {
+    if (post.author.username) {
+      getProfile(post)
+    }
+  }, []);
 
   return (
     <div className="mb-2 bg-primary p-4 rounded-xl">
       <div className="flex gap-3 items-center mb-2">
         <Link to={"/profile/" + post?.author?.username}>
           <img
-            src={post?.image ?? NoProfile}
+            src={profile?.profileimg ?? NoProfile}
             alt={post?.author?.first_name}
             className="w-14 h-14 object-cover rounded-full"
           />
@@ -166,7 +180,7 @@ const PostCard = ({ post }) => {
 
         <div className="w-full flex justify-between">
           <div className="">
-            <Link to={"/profile/" + post?.userId?._id}>
+            <Link to={"/profile/" + post?.author?.username}>
               <p className="font-medium text-lg text-ascent-1">
                 {post?.author?.first_name} {post?.author?.last_name}
               </p>

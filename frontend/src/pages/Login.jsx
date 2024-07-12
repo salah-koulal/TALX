@@ -29,7 +29,7 @@ const Login = () => {
         "username": data.username,
         "password": data.password
       });
-      await dispatch(getUser());
+      //await dispatch(getUser());
       const from = location.state?.from?.pathname || '/';
       navigate(from, { replace: true });
     } catch (error) {

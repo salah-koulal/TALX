@@ -11,8 +11,10 @@ const SuggestedFriends = () => {
   const [suggestedFriends, setSuggestedFriends] = useState(null);
   console.log("friend sug", suggestedFriends);
   const getProfiles = async () => {
-    const profiles = await client.get('/api/profiles');
-    const suggestedProfiles = profiles.data.filter(profile => profile.id !== user.id).slice(0, 5);
+    const data = await client.get('/api/profiles');
+    const profiles = await data.data;
+    console.log("profiles", profiles);
+    const suggestedProfiles = profiles.filter(profile => profile.id !== user.id).slice(0, 5);
     setSuggestedFriends(suggestedProfiles);
   }
 
@@ -23,7 +25,8 @@ const SuggestedFriends = () => {
   };
 
   useEffect(() =>{
-    getProfiles();
+    if (user)
+      getProfiles();
   }, []);
   return (
     <div>

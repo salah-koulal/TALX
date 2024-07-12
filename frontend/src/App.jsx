@@ -1,19 +1,25 @@
 import {Outlet, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import {useSelector} from "react-redux"
+import {useSelector, useDispatch} from "react-redux"
 import { Home, Login, Profile, Register, ResetPassword } from "./pages";
 import { Loading } from "./components";
+import { getUser } from "./Redux/userSlice.js";
 import { user } from "./assets/data.js";
+import { useEffect } from 'react'
 
 function Layout(){
-  const { user, status } = useSelector(state => state.user) ;
+  const { user, status } = useSelector(state => state.user);
+  const dispatch = useDispatch();
   const location = useLocation();
+  useEffect(() => {
+    if (status === 'idle') dispatch(getUser());
+  }, [dispatch, status])
   console.log("Layout: User state", user);
   console.log("Layout: Status", status);
   if (status === "loading") return <Loading />;
-  return user?(
-    <Outlet/>
-  ): (
+  return status === 'failed'?(
     <Navigate to='/login' state= {{from: location}} replace/>
+  ): (
+    <Outlet/>
   );
 }
 function App() {

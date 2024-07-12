@@ -37,14 +37,14 @@ const postsSlice = createSlice({
       })
       .addCase(getPosts.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.posts = action.payload;
+        state.posts = action.payload.reverse();
       })
       .addCase(getPosts.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       })
       .addCase(createPost.fulfilled, (state, action) => {
-        state.posts.push(action.payload);
+        state.posts.unshift(action.payload);
       })
       .addCase(updatePost.fulfilled, (state, action) => {
         const index = state.posts.findIndex(post => post.id === action.payload.id);
