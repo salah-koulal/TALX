@@ -4,7 +4,7 @@ import { NoProfile } from "../assets/idx.js";
 import { useSelector, useDispatch } from "react-redux";
 import { getFollowers } from "../Redux/userSlice.js";
 import { client } from "../client.js";
-import { CustomButton } from "./CustomButton.jsx";
+import CustomButton from "./CustomButton.jsx";
 
 const FriendReq = () => {
   const { user } = useSelector((state) => state.user);

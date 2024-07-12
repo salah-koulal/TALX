@@ -1,0 +1,132 @@
+[
+    {
+      "model": "auth.user",
+      "pk": 1,
+      "fields": {
+        "username": "salah_koulal",
+        "email": "skosalah1@gmail.com",
+        "first_name": "Salah Eddine",
+        "last_name": "Koulal"
+      }
+    },
+    {
+      "model": "auth.user",
+      "pk": 2,
+      "fields": {
+        "username": "radouane_baba",
+        "email": "radoine.baba04@gmail.com",
+        "first_name": "Radouane",
+        "last_name": "Baba"
+      }
+    },
+    {
+      "model": "auth.user",
+      "pk": 3,
+      "fields": {
+        "username": "awesu_ngajimba",
+        "email": "awesu@gmail.com",
+        "first_name": "Awesu",
+        "last_name": "Ngajimba"
+      }
+    },
+    {
+      "model": "api.profile",
+      "pk": 1,
+      "fields": {
+        "user": 1,
+        "bio": "Front-end Developer",
+        "profileimg": "https://i.pinimg.com/736x/27/be/84/27be845a72ce3b7bc151e0fb230028d1.jpg",
+        "profession": "Front-end Developer",
+        "location": "Beni-Mellal, Morocco",
+        "verified": true,
+        "created_at": "2024-07-03T09:38:14.179Z"
+      }
+    },
+    {
+      "model": "api.profile",
+      "pk": 2,
+      "fields": {
+        "user": 2,
+        "bio": "Software Engineer",
+        "profileimg": "https://i.pinimg.com/564x/53/00/7f/53007f5d1e12d67ab67c14ceabdd1dd5.jpg",
+        "profession": "Software Engineer",
+        "location": "Casablanca, Morocco",
+        "verified": true,
+        "created_at": "2024-06-18T09:33:32.519Z"
+      }
+    },
+    {
+      "model": "api.profile",
+      "pk": 3,
+      "fields": {
+        "user": 3,
+        "bio": "Full-Stack Developer",
+        "profileimg": "https://i.pinimg.com/564x/d9/13/0a/d9130acb8dde15608bd0dbfbe38c46bd.jpg",
+        "profession": "Full-Stack Developer",
+        "location": "City, Tanzania",
+        "verified": true,
+        "created_at": "2024-06-18T09:27:12.064Z"
+      }
+    },
+    {
+      "model": "api.post",
+      "pk": 1,
+      "fields": {
+        "author": 3,
+        "content": "Fact : 😂😂😂😂",
+        "image": "https://i.pinimg.com/564x/e8/8b/26/e88b262066175531a3c4282e452c52f0.jpg",
+        "created_at": "2024-08-21T06:04:18.297Z",
+        "type": "meme"
+      }
+    },
+    {
+      "model": "api.post",
+      "pk": 2,
+      "fields": {
+        "author": 2,
+        "content": "What is Lorem Ipsum? Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        "created_at": "2024-08-20T08:24:54.330Z",
+        "type": "info"
+      }
+    },
+    {
+      "model": "api.post",
+      "pk": 3,
+      "fields": {
+        "author": 1,
+        "content": "Another day, another line of code! #coding #developer",
+        "created_at": "2024-08-18T10:09:53.009Z",
+        "type": "info"
+      }
+    },
+    {
+      "model": "api.comment",
+      "pk": 1,
+      "fields": {
+        "author": 2,
+        "post": 1,
+        "content": "This is hilarious! 😂",
+        "created_at": "2024-08-21T07:00:00.000Z"
+      }
+    },
+    {
+      "model": "api.comment",
+      "pk": 2,
+      "fields": {
+        "author": 1,
+        "post": 2,
+        "content": "Interesting post!",
+        "created_at": "2024-08-20T09:00:00.000Z"
+      }
+    },
+    {
+      "model": "api.comment",
+      "pk": 3,
+      "fields": {
+        "author": 3,
+        "post": 3,
+        "content": "Keep coding!",
+        "created_at": "2024-08-18T11:00:00.000Z"
+      }
+    }
+  ]

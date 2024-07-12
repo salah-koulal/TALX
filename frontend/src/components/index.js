@@ -6,6 +6,7 @@ import TopBar from "./TopBar";
 import FriendsCard from "./FriendsCard";
 import PostCard from "./PostCard";
 import EditProfile from "./EditProfile";
+import SuggestedFriends from "./SuggestedFriends";
+import FriendReq from "./FriendReq";
 
-
-export { TextInput, Loading, CustomButton, ProfileCard, TopBar, FriendsCard, PostCard, EditProfile };
+export { TextInput, Loading, CustomButton, ProfileCard, TopBar, FriendsCard, PostCard, EditProfile, SuggestedFriends, FriendReq };

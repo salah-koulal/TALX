@@ -6,8 +6,9 @@ import TextInput from "./TextInput";
 import Loading from "./Loading";
 import CustomButton from "./CustomButton";
 import { UpdateProfile } from "../Redux/userSlice";
+import { putProfile } from "../Redux/userSlice"
 
-const EditProfile = () => {
+const EditProfile = ({ close }) => {
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const [errMsg, setErrMsg] = useState("");
@@ -23,10 +24,21 @@ const EditProfile = () => {
     defaultValues: { ...user },
   });
 
-  const onSubmit = async (data) => {};
+  const onSubmit = async (data) => {
+    const formData = new FormData();
+    formData.append('bio', data.bio);
+    formData.append('profession', data.profession);
+    formData.append('location', data.location);
+    if (picture) {
+      formData.append('profileimg', picture);
+    }
+    dispatch(putProfile({data: formData, username: user?.user?.username}));
+    close();
+  };
 
   const handleClose = () => {
-    dispatch(UpdateProfile(false));
+    //dispatch(UpdateProfile(false));
+    close();
   };
   const handleSelect = (e) => {
     setPicture(e.target.files[0]);
@@ -63,7 +75,7 @@ const EditProfile = () => {
               className="px-4 sm:px-6 flex flex-col gap-3 2xl:gap-6"
               onSubmit={handleSubmit(onSubmit)}
             >
-              <TextInput
+              {/*<TextInput
                 name="firstName"
                 label="First Name"
                 placeholder="First Name"
@@ -84,8 +96,31 @@ const EditProfile = () => {
                   required: "Last Name do no match",
                 })}
                 error={errors.lastName ? errors.lastName?.message : ""}
-              />
+              />*/}
 
+              <TextInput
+                name="bio"
+                label="bio"
+                placeholder="Tell People about yourself"
+                type="text"
+                styles="w-full"
+                register={register("firstName", {
+                  required: "First Name is required!",
+                })}
+                error={errors.bio ? errors.bio?.message : ""}
+              />
+              <label
+                className="flex items-center gap-1 text-base text-ascent-2 hover:text-ascent-1 cursor-pointer my-4"
+                htmlFor="imgUpload"
+              >
+                <input
+                  type="file"
+                  className=""
+                  id="imgUpload"
+                  onChange={(e) => handleSelect(e)}
+                  accept=".jpg, .png, .jpeg"
+                />
+              </label>
               <TextInput
                 name="profession"
                 label="Profession"
@@ -109,18 +144,6 @@ const EditProfile = () => {
                 error={errors.location ? errors.location?.message : ""}
               />
 
-              <label
-                className="flex items-center gap-1 text-base text-ascent-2 hover:text-ascent-1 cursor-pointer my-4"
-                htmlFor="imgUpload"
-              >
-                <input
-                  type="file"
-                  className=""
-                  id="imgUpload"
-                  onChange={(e) => handleSelect(e)}
-                  accept=".jpg, .png, .jpeg"
-                />
-              </label>
 
               {errMsg?.message && (
                 <span
