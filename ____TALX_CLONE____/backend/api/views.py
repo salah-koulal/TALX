@@ -119,5 +119,7 @@ class UserLogin(APIView):
         #     "username":user.username, "is_active":user.is_active, "is_staff":user.is_staff,
         #     "first_name":user.first_name, "last_name":user.last_name, "ID":user.ID
         # }
-        obj = Users.objects.filter(username=username).first().to_dict()
-        return Response(obj, status=status.HTTP_200_OK)
+        obj = Users.objects.filter(username=username).first()
+        profiles = Profile.objects.filter(user=obj)
+        serial_data = ProfileSerializer(profiles, many=True).data
+        return Response(serial_data, status=status.HTTP_200_OK)
