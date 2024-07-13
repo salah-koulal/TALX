@@ -6,7 +6,7 @@ import TextInput from "./TextInput";
 import Loading from "./Loading";
 import CustomButton from "./CustomButton";
 import { UpdateProfile } from "../Redux/userSlice";
-import { putProfile } from "../Redux/userSlice"
+import { putProfile, getUser } from "../Redux/userSlice"
 
 const EditProfile = ({ close }) => {
   const { user } = useSelector((state) => state.user);
@@ -33,6 +33,7 @@ const EditProfile = ({ close }) => {
       formData.append('profileimg', picture);
     }
     dispatch(putProfile({data: formData, username: user?.user?.username}));
+    dispatch(getUser());
     close();
   };
 
@@ -104,9 +105,7 @@ const EditProfile = ({ close }) => {
                 placeholder="Tell People about yourself"
                 type="text"
                 styles="w-full"
-                register={register("firstName", {
-                  required: "First Name is required!",
-                })}
+                register={register("bio")}
                 error={errors.bio ? errors.bio?.message : ""}
               />
               <label

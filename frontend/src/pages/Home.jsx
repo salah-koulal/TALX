@@ -21,7 +21,7 @@ import PostCard from "../components/PostCard.jsx";
 import { selectAllPosts } from "../Redux/postSlice.js";
 import { client } from "../client.js";
 import { useDispatch } from "react-redux";
-import { getUser } from "../Redux/userSlice.js"
+import { getUser, getFollowers, getFollowing } from "../Redux/userSlice.js"
 import { getPosts, createPost } from "../Redux/postSlice.js";
 
 const test = async () => {
@@ -46,12 +46,15 @@ const Home = () => {
     if (postStatus === "idle") {
       dispatch(getPosts());
     }
-  }, [dispatch, postStatus])
+    dispatch(getFollowers(user?.user?.username));
+    dispatch(getFollowing(user?.user?.username));
+  }, [dispatch, postStatus, user])
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm();
   const handlePostSubmit = (data) => {
     /*await client.post('/api/posts', {
@@ -67,6 +70,7 @@ const Home = () => {
       formData.append('image', file);
     }
     dispatch(createPost(formData));
+    reset()
   };
   return (
     <>

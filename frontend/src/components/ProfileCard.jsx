@@ -85,7 +85,7 @@ const ProfileCard = () => {
 
           <div className="flex items-center justify-between">
             <span className="text-ascent-2">Who viewed your profile</span>
-            <span className="text-ascent-1 text-lg">{/*user?.views?.length*/}2 views</span>
+            <span className="text-ascent-1 text-lg">{/*user?.views?.length*/}1 views</span>
           </div>
 
           <span className="text-base text-[#0095f6]">

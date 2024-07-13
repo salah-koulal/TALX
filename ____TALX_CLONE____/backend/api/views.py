@@ -1,4 +1,6 @@
 #backend/api/views.py
+import jwt
+
 from django.contrib.auth import authenticate, login, logout
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
@@ -9,9 +11,10 @@ from django.contrib.auth.models import User
 from rest_framework import permissions, status, generics
 from .validations import custom_validation, validate_email, validate_password
 from rest_framework.permissions import AllowAny
+from datetime import datetime, timedelta
 
 from .models import (
-    Users, Post, Profile, LikePost, Comment, Following
+    Users, Post, Profile, LikePost, Comment, Following, make_password
 )
 from .serializers import (
     UsersSerializer,
@@ -23,6 +26,22 @@ from .serializers import (
 )
 from rest_framework.decorators import api_view
 from django.contrib.auth.hashers import make_password
+
+######################  GLOBALS ################################
+cookies_session = []
+def new_token(username:str, exp:int) ->str:
+    secret_key  = "HORIZONS-SECRET-KEY"
+
+    payload = {
+        "username":username,
+        "exp":datetime.utcnow() + timedelta(days=exp)
+    }
+    return jwt.encode(payload, secret_key, algorithm='HS256')
+def check_password(hashed:str, password:str) -> str:
+    """ check hashed password with ="""
+    return hashed == make_password(password)
+
+################# END GLOBALS #########
 @api_view(['GET'])
 def test(request):
     all_obj = Users.objects.all()
@@ -46,33 +65,21 @@ class UserRegister(APIView):
         # Validate the incoming data
         clean_data = custom_validation(request.data)
 
-        # Hash the password if it exists in clean_data
         if "password" in clean_data:
             clean_data["password"] = make_password(clean_data["password"])
+        # Create the user instance
+        user = Users(**clean_data)
+        user.save()
+        if user:
+            # Create and save the profile for the new user
+            profile = Profile(user=user)
+            profile.save()
+            # Include profile data in the response
+            user_data =  UsersSerializer(user).data
+            user_data['profile'] = ProfileSerializer(profile).data
 
-        # Print the cleaned data for debugging purposes
-        print(f"\n\n::   clean_data ${clean_data}   >>  \n\n")
-
-        # Create a serializer instance with the cleaned data
-        serializer = UsersSerializer(data=clean_data)
-
-        # Check if the serializer data is valid
-        if serializer.is_valid(raise_exception=True):
-            # Create the user instance
-            user = serializer.create(clean_data)
-
-            if user:
-                # Create and save the profile for the new user
-                profile = Profile(user=user)
-                profile.save()
-
-                # Include profile data in the response
-                user_data = serializer.data
-                user_data['profile'] = ProfileSerializer(profile).data
-
-                # Return the user data along with profile data
-                return Response(user_data, status=status.HTTP_201_CREATED)
-
+            # Return the user data along with profile data
+            return Response(user_data, status=status.HTTP_201_CREATED)
         # Return bad request status if the serializer is not valid
         return Response(status=status.HTTP_400_BAD_REQUEST)
 class getCSRFCookie(APIView):
@@ -102,24 +109,26 @@ class UserLogin(APIView):
         username = request.data.get('username')
         password = request.data.get('password')
 
-        # Check if the username exists
-        if not Users.objects.filter(username=username).exists():
-            return Response({'detail': 'Invalid username'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        user = authenticate(request, username=username, password=password)
-
-        # Check if the password is incorrect
+        user =  Users.objects.filter(username=username).first()
         if user is None:
-            return Response({'detail': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'detail': f'{username} is not exist '}, status=status.HTTP_401_UNAUTHORIZED)
+        print(f" \n\n\n From Login  {user.password} {make_password(password) == user.password} \n\n\n")
+        if not authenticate(username=username, password=password):
+            return Response({'detail': ' password incorrect  '}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # If the user is authenticated, log them in
-        # login(request, user)
-        # serializer = UsersSerializer(user)
-        # obj = {
-        #     "username":user.username, "is_active":user.is_active, "is_staff":user.is_staff,
-        #     "first_name":user.first_name, "last_name":user.last_name, "ID":user.ID
-        # }
-        obj = Users.objects.filter(username=username).first()
-        profiles = Profile.objects.filter(user=obj)
-        serial_data = ProfileSerializer(profiles, many=True).data
-        return Response(serial_data, status=status.HTTP_200_OK)
+        token = new_token(username, 1)
+        user_found = False
+        # check if the user is already  log in
+        for cookie in cookies_session:
+            if cookie.get("username") == username:
+                cookie["token"] = token
+                user_found = True
+                break
+
+        if not user_found:
+            cookies_session.append({"token": token, "username": username})
+
+        profiles = Profile.objects.filter(user=user).first()
+        serial_data = ProfileSerializer(profiles).data
+        # serial_data["token"] = token
+        return Response((serial_data, token), status=status.HTTP_200_OK)
