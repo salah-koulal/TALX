@@ -42,7 +42,7 @@ class UserLogin(APIView):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             user = serializer.check_user(request.data)
-            login(request, user)
+            # login(request, user)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
 

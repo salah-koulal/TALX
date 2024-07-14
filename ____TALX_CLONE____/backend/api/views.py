@@ -29,6 +29,8 @@ from django.contrib.auth.hashers import make_password
 
 ######################  GLOBALS ################################
 cookies_session = []
+
+
 def new_token(username:str, exp:int) ->str:
     secret_key  = "HORIZONS-SECRET-KEY"
 
@@ -56,7 +58,9 @@ def test2(request):
     # serial_data = [obj.to_dict() for obj in all_obj]
 
     return Response( serial_data2)
-
+@api_view(['GET'])
+def test3(request):
+    return Response({"logged_users":logged_users, "cookies_session":cookies_session} ,status=status.HTTP_200_OK)
 
 class UserRegister(APIView):
     permission_classes = [AllowAny]  # Allow any user to access this endpoint
@@ -130,5 +134,31 @@ class UserLogin(APIView):
 
         profiles = Profile.objects.filter(user=user).first()
         serial_data = ProfileSerializer(profiles).data
+        # login(request, user)
+        # logout(request)
         # serial_data["token"] = token
         return Response((serial_data, token), status=status.HTTP_200_OK)
+
+
+class UserLogout(APIView):
+    def get(self, request):
+        return Response({"detail": "Please use POST to logout."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def post(self, request):
+        username = request.data.get("username")
+        logged_users = [cookie["username"] for cookie in cookies_session]
+
+        if username:
+            if username in logged_users:
+                for cookie in cookies_session:
+                    if cookie["username"] == username:
+                        cookies_session.remove(cookie)
+                        return Response({"detail": f"{username} logged out"}, status=status.HTTP_200_OK)
+                # This block is theoretically unreachable due to previous check
+                return Response({"detail": f"No active session found for {username}"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # Return a response if the username is not in logged_users
+                return Response({"detail": f"{username} is not logged in"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # Return a response if no username is provided in the request
+            return Response({"detail": "Username not provided"}, status=status.HTTP_400_BAD_REQUEST)

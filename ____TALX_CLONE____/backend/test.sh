@@ -7,11 +7,17 @@ curl -X POST http://127.0.0.1:8000/api/register/ \
 "password": "passwordx123"}'
 
 
-
-user_data = {
+# register
+{
     "email": "Kyoko-sun@example.com",
     "username": "Kyoko",
     "password": "passwordx123",
     "first_name": "first_name",
     "last_name": "last_name"
 }
+# login
+ {
+    "username": "Kyoko",
+    "password": "passwordx123"
+}
+curl -X POST http://127.0.0.1:8000/api/login/ -d "username=Kyoko" -d "password=passwordx123"
