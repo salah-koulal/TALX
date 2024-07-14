@@ -12,6 +12,9 @@ from .serializers import *
 class Authentication:
     def __init__(self) -> None:
         self.cookies_session = []
+        self.logged_users = []
+    def reload(self):
+        self.logged_users = [cookie["username"] for cookie in self.cookies_session]
 
     def new_token(self, username: str, exp: int) -> str:
         secret_key = "HORIZONS-SECRET-KEY"
@@ -51,10 +54,9 @@ class Authentication:
 
     def logout_username(self, request):
         username = request.data.get("username")
-        logged_users = [cookie["username"] for cookie in self.cookies_session]
-
+        self.reload()
         if username:
-            if username in logged_users:
+            if username in self.logged_users:
                 for cookie in self.cookies_session:
                     if cookie["username"] == username:
                         self.cookies_session.remove(cookie)

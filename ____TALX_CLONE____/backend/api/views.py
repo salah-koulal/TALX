@@ -38,7 +38,8 @@ def test2(request):
     return Response( serial_data2)
 @api_view(['GET'])
 def test3(request):
-    return Response({"logged_users":logged_users, "cookies_session":cookies_session} ,status=status.HTTP_200_OK)
+    auth.reload()
+    return Response({"logged_users":auth.logged_users, "cookies_session":auth.cookies_session} ,status=status.HTTP_200_OK)
 
 class UserRegister(APIView):
     permission_classes = [AllowAny]  # Allow any user to access this endpoint
