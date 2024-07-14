@@ -14,8 +14,10 @@ class Authentication:
     def __init__(self) -> None:
         self.cookies_session = []
         self.logged_users = []
+        self.tokens_list = []
     def reload(self):
         self.logged_users = [cookie["username"] for cookie in self.cookies_session]
+        self.tokens_list = [cookie["token"] for cookie in self.cookies_session]
 
     def new_token(self, username: str, exp: int) -> str:
         secret_key = "HORIZONS-SECRET-KEY"
@@ -25,6 +27,24 @@ class Authentication:
             "exp": datetime.utcnow() + timedelta(days=exp)
         }
         return jwt.encode(payload, secret_key, algorithm='HS256')
+
+
+    def is_logged(self, username:str=None, token:str=None) -> bool:
+        self.reload()
+        if username and username in self.logged_users:
+            return True
+        if token and token in self.tokens_list:
+            return True
+        return False
+
+    def all(self, to_return="logged_users"):
+        self.reload()
+        if to_return == "logged_users":
+            return self.logged_users
+        elif to_return == "tokens":
+            return self.tokens_list
+        else:
+            return self.cookies_session
 
     def register_user(self, request):
 
