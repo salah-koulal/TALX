@@ -6,6 +6,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
 from rest_framework import status
 
+from .validations import *
 from .models import *
 from .serializers import *
 
@@ -24,6 +25,29 @@ class Authentication:
             "exp": datetime.utcnow() + timedelta(days=exp)
         }
         return jwt.encode(payload, secret_key, algorithm='HS256')
+
+    def register_user(self, request):
+
+        # Validate the incoming data
+        clean_data = custom_validation(request.data)
+
+        if "password" in clean_data:
+            clean_data["password"] = make_password(clean_data["password"])
+        # Create the user instance
+        user = Users(**clean_data)
+        user.save()
+        if user:
+            # Create and save the profile for the new user
+            profile = Profile(user=user)
+            profile.save()
+            # Include profile data in the response
+            user_data =  UsersSerializer(user).data
+            user_data['profile'] = ProfileSerializer(profile).data
+
+            # Return the user data along with profile data
+            return Response(user_data, status=status.HTTP_201_CREATED)
+        # Return bad request status if the serializer is not valid
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def login_username(self, request):
         username = request.data.get('username')
