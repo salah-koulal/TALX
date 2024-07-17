@@ -13,8 +13,10 @@ class Base(models.Model):
     def to_dict(self):
         new_dict = self.__dict__.copy()
         new_dict['ID'] = str(new_dict['ID'])
-        new_dict['created_date'] = new_dict['created_date'].strftime(time_format)
-        new_dict['updated_date'] = new_dict['updated_date'].strftime(time_format)
+        if  "created_date" in new_dict:
+            new_dict['created_date'] = new_dict['created_date'].strftime(time_format)
+        if  "updated_date" in new_dict:
+            new_dict['updated_date'] = new_dict['updated_date'].strftime(time_format)
         new_dict.pop('_state', None)
         if 'date_joined' in new_dict:
             new_dict['date_joined'] = new_dict['date_joined'].strftime(time_format)

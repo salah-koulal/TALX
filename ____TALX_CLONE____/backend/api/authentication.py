@@ -15,6 +15,7 @@ class Authentication:
         self.cookies_session = []
         self.logged_users = []
         self.tokens_list = []
+
     def reload(self):
         self.logged_users = [cookie["username"] for cookie in self.cookies_session]
         self.tokens_list = [cookie["token"] for cookie in self.cookies_session]
@@ -36,6 +37,18 @@ class Authentication:
         if token and token in self.tokens_list:
             return True
         return False
+
+    def get_by(self, token: str = None, username: str = None) -> str:
+        if token:
+            for cookie in self.cookies_session:
+                if cookie["token"] == token:
+                    return  cookie["username"]
+        if username:
+            for cookie in self.cookies_session:
+                if cookie["username"] == username:
+                    return cookie["token"]
+        return None
+
 
     def all(self, to_return="logged_users"):
         self.reload()
@@ -76,7 +89,6 @@ class Authentication:
         user = Users.objects.filter(username=username).first()
         if user is None:
             return Response({'detail': f'{username} does not exist'}, status=status.HTTP_401_UNAUTHORIZED)
-        print(f" \n\n\n From Login  {user.password} {make_password(password) == user.password} \n\n\n")
         if not authenticate(username=username, password=password):
             return Response({'detail': 'Password incorrect'}, status=status.HTTP_401_UNAUTHORIZED)
 

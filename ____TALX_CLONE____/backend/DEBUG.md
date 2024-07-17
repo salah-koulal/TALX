@@ -1,241 +1,115 @@
-#backend/api/authentication.py
-import jwt
-from datetime import datetime, timedelta
-from django.contrib.auth import authenticate
-from django.contrib.auth.hashers import make_password
-from rest_framework.response import Response
-from rest_framework import status
+# running  server output
+```sh
+mohamed@DESKTOP-S296B4S /mnt/c/Users/Active/Desktop/Coding/Short_Specializations/Portfolio_project/TALX/____TALX_CLONE____/backend
+ % ./manage.py runserver
+Watching for file changes with StatReloader
+Performing system checks...
 
-from .models import *
-from .serializers import *
+System check identified no issues (0 silenced).
+July 17, 2024 - 07:20:09
+Django version 4.2.10, using settings 'backend.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
 
-class Authentication:
-    def __init__(self) -> None:
-        self.cookies_session = []
+Method Not Allowed: /api/post/
+[17/Jul/2024 07:20:12] "GET /api/post/ HTTP/1.1" 405 5590
 
-    def new_token(username:str, exp:int) ->str:
-        secret_key  = "HORIZONS-SECRET-KEY"
 
-        payload = {
-            "username":username,
-            "exp":datetime.utcnow() + timedelta(days=exp)
-        }
-        return jwt.encode(payload, secret_key, algorithm='HS256')
-    def login_username(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
 
-        user =  Users.objects.filter(username=username).first()
-        if user is None:
-            return Response({'detail': f'{username} is not exist '}, status=status.HTTP_401_UNAUTHORIZED)
-        print(f" \n\n\n From Login  {user.password} {make_password(password) == user.password} \n\n\n")
-        if not authenticate(username=username, password=password):
-            return Response({'detail': ' password incorrect  '}, status=status.HTTP_401_UNAUTHORIZED)
+ :: from AddPost >>  {'author': 'Kyoko', 'content': 'asdsjalskd sd askl sad jasl djlas ', 'image': None, 'type': 'info'}
+Internal Server Error: /api/post/
+Traceback (most recent call last):
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/db/models/fields/__init__.py", line 2688, in to_python
+    return uuid.UUID(**{input_form: value})
+  File "/usr/lib/python3.8/uuid.py", line 171, in __init__
+    raise ValueError('badly formed hexadecimal UUID string')
+ValueError: badly formed hexadecimal UUID string
 
-        token = self.new_token(username, 1)
-        user_found = False
-        # check if the user is already  log in
-        for cookie in self.cookies_session:
-            if cookie.get("username") == username:
-                cookie["token"] = token
-                user_found = True
-                break
+During handling of the above exception, another exception occurred:
 
-        if not user_found:
-            self.cookies_session.append({"token": token, "username": username})
+Traceback (most recent call last):
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/views/generic/base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/mohamed/.local/lib/python3.8/site-packages/rest_framework/views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "/home/mohamed/.local/lib/python3.8/site-packages/rest_framework/views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/home/mohamed/.local/lib/python3.8/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "/home/mohamed/.local/lib/python3.8/site-packages/rest_framework/views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "/mnt/c/Users/Active/Desktop/Coding/Short_Specializations/Portfolio_project/TALX/____TALX_CLONE____/backend/api/views.py", line 102, in post
+    saved_post = Post.objects.filter(author="Kyoko").first()
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/db/models/query.py", line 1436, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/db/models/query.py", line 1454, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/db/models/query.py", line 1461, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/db/models/sql/query.py", line 1546, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/db/models/sql/query.py", line 1577, in _add_q
+    child_clause, needed_inner = self.build_filter(
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/db/models/sql/query.py", line 1492, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/db/models/sql/query.py", line 1319, in build_lookup
+    lookup = lookup_class(lhs, rhs)
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/db/models/lookups.py", line 27, in __init__
+    self.rhs = self.get_prep_lookup()
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/db/models/fields/related_lookups.py", line 166, in get_prep_lookup
+    self.rhs = target_field.get_prep_value(self.rhs)
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/db/models/fields/__init__.py", line 2672, in get_prep_value
+    return self.to_python(value)
+  File "/home/mohamed/.local/lib/python3.8/site-packages/django/db/models/fields/__init__.py", line 2690, in to_python
+    raise exceptions.ValidationError(
+django.core.exceptions.ValidationError: ['“Kyoko” is not a valid UUID.']
+[17/Jul/2024 07:20:
 
-        profiles = Profile.objects.filter(user=user).first()
-        serial_data = ProfileSerializer(profiles).data
-        # login(request, user)
-        # logout(request)
-        # serial_data["token"] = token
-        return Response((serial_data, token), status=status.HTTP_200_OK)
-    def logout_username(self, request):
-        username = request.data.get("username")
-        logged_users = [cookie["username"] for cookie in self.cookies_session]
+```
 
-        if username:
-            if username in logged_users:
-                for cookie in self.cookies_session:
-                    if cookie["username"] == username:
-                        self.cookies_session.remove(cookie)
-                        return Response({"detail": f"{username} logged out"}, status=status.HTTP_200_OK)
-                # This block is theoretically unreachable due to previous check
-                return Response({"detail": f"No active session found for {username}"}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                # Return a response if the username is not in logged_users
-                return Response({"detail": f"{username} is not logged in"}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            # Return a response if no username is provided in the request
-            return Response({"detail": "Username not provided"}, status=status.HTTP_400_BAD_REQUEST)#backend/api/views.py
-import jwt
 
-from django.contrib.auth import authenticate, login, logout
-from django.middleware.csrf import get_token
-from django.shortcuts import get_object_or_404
-from rest_framework.authentication import SessionAuthentication
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from django.contrib.auth.models import User
-from rest_framework import permissions, status, generics
-from .validations import custom_validation, validate_email, validate_password
-from rest_framework.permissions import AllowAny
-from datetime import datetime, timedelta
+# Base  , Post and AddPost classes
 
-from .models import (
-    Users, Post, Profile, LikePost, Comment, Following, make_password
-)
-from .serializers import (
-    UsersSerializer,
-    PostSerializer,
-    ProfileSerializer,
-    LikePostSerializer,
-    CommentSerializer,
-    FollowingSerializer,
-)
-from rest_framework.decorators import api_view
-from django.contrib.auth.hashers import make_password
-from .authentication import Authentication
-######################  GLOBALS ################################
+```py
+class Base(models.Model):
+    ID = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
+    def to_dict(self):
+        new_dict = self.__dict__.copy()
+        new_dict['ID'] = str(new_dict['ID'])
+        if  "created_date" in new_dict:
+            new_dict['created_date'] = new_dict['created_date'].strftime(time_format)
+        if  "updated_date" in new_dict:
+            new_dict['updated_date'] = new_dict['updated_date'].strftime(time_format)
+        new_dict.pop('_state', None)
+        if 'date_joined' in new_dict:
+            new_dict['date_joined'] = new_dict['date_joined'].strftime(time_format)
+        if 'password' in new_dict:
+            # new_dict['password'] = make_password(new_dict['password'])
+            new_dict.pop("password")
+        if 'user_id' in new_dict:
+            new_dict['user_id'] = str(new_dict['user_id'])
+        return new_dict
 
-cookies_session = []
-auth = Authentication()
+        return new_dict
 
-def new_token(username:str, exp:int) ->str:
-    secret_key  = "HORIZONS-SECRET-KEY"
+    class Meta:
+        abstract = True
 
-    payload = {
-        "username":username,
-        "exp":datetime.utcnow() + timedelta(days=exp)
-    }
-    return jwt.encode(payload, secret_key, algorithm='HS256')
-def check_password(hashed:str, password:str) -> str:
-    """ check hashed password with ="""
-    return hashed == make_password(password)
-
-################# END GLOBALS #########
-@api_view(['GET'])
-def test(request):
-    all_obj = Users.objects.all()
-    serial_data2 = UsersSerializer(all_obj, many=True).data
-    serial_data = [obj.to_dict() for obj in all_obj]
-
-    return Response((serial_data, serial_data2))
-@api_view(['GET'])
-def test2(request):
-    all_obj = Profile.objects.all()
-    serial_data2 = ProfileSerializer(all_obj, many=True).data
-    # serial_data = [obj.to_dict() for obj in all_obj]
-
-    return Response( serial_data2)
-@api_view(['GET'])
-def test3(request):
-    return Response({"logged_users":logged_users, "cookies_session":cookies_session} ,status=status.HTTP_200_OK)
-
-class UserRegister(APIView):
-    permission_classes = [AllowAny]  # Allow any user to access this endpoint
-
-    def post(self, request):
-
-        # Validate the incoming data
-        clean_data = custom_validation(request.data)
-
-        if "password" in clean_data:
-            clean_data["password"] = make_password(clean_data["password"])
-        # Create the user instance
-        user = Users(**clean_data)
-        user.save()
-        if user:
-            # Create and save the profile for the new user
-            profile = Profile(user=user)
-            profile.save()
-            # Include profile data in the response
-            user_data =  UsersSerializer(user).data
-            user_data['profile'] = ProfileSerializer(profile).data
-
-            # Return the user data along with profile data
-            return Response(user_data, status=status.HTTP_201_CREATED)
-        # Return bad request status if the serializer is not valid
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-
-class getCSRFCookie(APIView):
-    def get(self, request):
-        csrf_token = get_token(request)
-        return Response({'csrftoken': csrf_token})
-
-# class UserLogin(APIView):
-#     permission_classes = [permissions.AllowAny]
-
-#     def post(self, request):
-#         username = request.data.get('username')
-#         password = request.data.get('password')
-#         user = authenticate(request, username=username, password=password)
-#         if user is not None:
-#             login(request, user)
-#             serializer = UsersSerializer(user)
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-class UserLogin(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    def get(self, request):
-        return Response({"detail": "Please use POST to login."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def post(self, request):
-        '''
-        username = request.data.get('username')
-        password = request.data.get('password')
-
-        user =  Users.objects.filter(username=username).first()
-        if user is None:
-            return Response({'detail': f'{username} is not exist '}, status=status.HTTP_401_UNAUTHORIZED)
-        print(f" \n\n\n From Login  {user.password} {make_password(password) == user.password} \n\n\n")
-        if not authenticate(username=username, password=password):
-            return Response({'detail': ' password incorrect  '}, status=status.HTTP_401_UNAUTHORIZED)
-
-        token = new_token(username, 1)
-        user_found = False
-        # check if the user is already  log in
-        for cookie in cookies_session:
-            if cookie.get("username") == username:
-                cookie["token"] = token
-                user_found = True
-                break
-
-        if not user_found:
-            cookies_session.append({"token": token, "username": username})
-
-        profiles = Profile.objects.filter(user=user).first()
-        serial_data = ProfileSerializer(profiles).data
-        # login(request, user)
-        # logout(request)
-        # serial_data["token"] = token
-        return Response((serial_data, token), status=status.HTTP_200_OK)
-        '''
-        auth.login_username(request)
-
-class UserLogout(APIView):
-    def get(self, request):
-        return Response({"detail": "Please use POST to logout."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def post(self, request):
-        auth.logout_username(request)
-        '''
-        username = request.data.get("username")
-        logged_users = [cookie["username"] for cookie in cookies_session]
-
-        if username:
-            if username in logged_users:
-                for cookie in cookies_session:
-                    if cookie["username"] == username:
-                        cookies_session.remove(cookie)
-                        return Response({"detail": f"{username} logged out"}, status=status.HTTP_200_OK)
-                # This block is theoretically unreachable due to previous check
-                return Response({"detail": f"No active session found for {username}"}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                # Return a response if the username is not in logged_users
-                return Response({"detail": f"{username} is not logged in"}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            # Return a response if no username is provided in the request
-            return Response({"detail": "Username not provided"}, status=status.HTTP_400_BAD_REQUEST)
-        '''
+class Post(Base):
+    author = models.ForeignKey(Users, on_delete=models.CASCADE)
+    content = models.TextField()
+    image = models.ImageField(upload_to="post_image/", null=True, blank=True)
+    type = models.CharField(
+        max_length=4,  choices=[("meme", "Meme"), ("info", "Info")]
+    )
+```
