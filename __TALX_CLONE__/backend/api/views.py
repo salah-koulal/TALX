@@ -80,6 +80,9 @@ class UserLogout(APIView):
         return auth.logout_username(request)
 
 class AddPost(APIView):
+    def get(self, request):
+        return Response({"detail": "Please use POST to login."},
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
     def post(self, request):
         required = {"token", "post"}
         req_post = {"author", "content", "type"}
@@ -106,5 +109,47 @@ class AddPost(APIView):
                 saved_post = Post.objects.filter(author=author).first()
                 return Response(saved_post.to_dict() ,
                                 status=status.HTTP_200_OK)
-        return Response(
-                        status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+class AddComment(APIView):
+    def get(self, request):
+        return Response({"detail": "Please use POST to login."},
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    def post(self, request):
+        if not request or not  request.data :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        data = request.data["comment"] or None
+        token = request.headers.get('Authorization') or request.data["token"] or None
+
+        if not data or not token:
+
+            return Response({"messing":"asdas"} , status=status.HTTP_400_BAD_REQUEST)
+        author_name = auth.get_by(token=token)
+        if not author_name:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        author = Users.objects.filter(username=author_name).first()
+        if not author:
+            return Response({"Error":f"{author_name} not found"})
+
+
+        post_id = data["post_id"] or None
+        content = data["content"] or None
+
+        if not post_id or not content:
+                return Response({"messing":"comment and post_id required "},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        post_obj = Post.objects.filter(ID=post_id).first()
+        if not post_obj:
+            return Response({"Error":f"{post_id} is not a valid id "},
+                            status=status.HTTP_304_NOT_MODIFIED)
+        comment ={
+            "author":author, "post":post_obj, "content":content
+        }
+        comment_obj = Comment(**comment)
+        comment_obj.save()
+        ser_comment = CommentSerializer(comment_obj).data
+        return Response(ser_comment, status=status.HTTP_201_CREATED)
+
+
+

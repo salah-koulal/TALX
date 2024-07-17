@@ -62,7 +62,8 @@ class Authentication:
     def register_user(self, request):
 
         # Validate the incoming data
-        clean_data = custom_validation(request.data)
+        data = request.data["user"] or request.data
+        clean_data = custom_validation(data)
 
         if "password" in clean_data:
             clean_data["password"] = make_password(clean_data["password"])

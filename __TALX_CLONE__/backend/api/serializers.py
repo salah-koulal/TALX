@@ -1,8 +1,6 @@
 #backend/api/serializers.py
 from rest_framework import serializers
-from .models import (
-   Base, Users, Profile, Post, LikePost, Comment, Following
-    )
+from .models import *
 
 
 
@@ -38,14 +36,14 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = "__all__"
-
+'''
 
 class LikePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = LikePost
         fields = "__all__"
 
-
+'''
 class CommentSerializer(serializers.ModelSerializer):
     author = UsersSerializer(read_only=True)
 

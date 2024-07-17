@@ -1,0 +1,28 @@
+{
+    "token":
+"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6Ikt5b2tvIiwiZXhwIjoxNzIxMTk0MjcxfQ.wlkL7OrId4K_yO7dBO2HRwjBQwC22rS5gf7H2sAEhrk",
+    "post":{
+        "author":"Kyoko",
+        "content":" After having Excellent grade in computer science in Harvard and 180 in IQ , Pass all tests and job interviews.. day in software Engineer finally working At ProCode yaaaa ",
+        "image":null,
+        "type":"info"
+
+    }
+}
+{
+    "token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6Ikt5b2tvIiwiZXhwIjoxNzIxMTk0MjcxfQ.wlkL7OrId4K_yO7dBO2HRwjBQwC22rS5gf7H2sAEhrk",
+
+   "comment": {
+       "post_id": "a140162a-cbc0-408a-a843-84469f621a55",
+       "content": "your mom ..  will cry with joy .. i cant believe myself 😍😍😅 "
+       }
+     }
+     {
+    "user": {
+        "email": "Kyoko-sun@example.com",
+        "username": "Kyoko",
+        "password": "passwordx123",
+        "first_name": "first_name",
+        "last_name": "last_name"
+    }
+}
