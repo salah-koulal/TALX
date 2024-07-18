@@ -26,6 +26,7 @@ x = {"username":"Kyoko",
 
      }
 auth.cookies_session.append(x)
+
 ################# END GLOBALS #########
 @api_view(['GET'])
 def test(request):
@@ -153,3 +154,72 @@ class AddComment(APIView):
 
 
 
+
+class GetAllByToken(APIView):
+    def get(self, request):
+        return Response({"detail": "Please use POST to like."},
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    def post(self, request):
+        token = request.headers.get('Authorization') or request.data["token"] or None
+        username = auth.get_by(token=token) or None
+        if not username:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        data = request.data or None
+        if not data:
+            return Response({"Error": "Request data missing"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        response_obj = {}
+        msg = ""
+        user = Users.objects.filter(username=username).first()
+        for key in data.keys():
+            if key == "token":
+                continue
+            cls_name = key.lower().strip().capitalize()
+            if cls_name  in classes.keys():
+                if cls_name in ["Comment", "Post"]:
+                    all_objs=classes[cls_name].objects.filter(author=user.ID).all()
+                else:
+                    all_objs=classes[cls_name].objects.filter(username=username).all()
+                # serial_objs=cls_serializers[cls_name](all_objs, many=True).data
+                serial_objs = [obj.to_dict() for obj in all_objs]
+                response_obj[key] = serial_objs
+
+            else:
+                if len(msg) > 0:
+                    msg += ", "
+                else:
+                    msg += "can't find "
+                msg += f"{key}"
+
+        if msg == "":
+            msg = None
+
+
+        return Response({"data":response_obj, "issues":msg},
+                        status=status.HTTP_200_OK )
+
+
+class Like(APIView):
+    def get(self, request):
+        return Response({"detail": "Please use POST to like."},
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def post(self, request):
+        token = request.headers.get('Authorization') or request.data["token"] or None
+        username = auth.get_by(token=token) or None
+        if not username:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        data = request.data or None
+        if not data:
+            return Response({"Error": "Request data missing"},
+            status=status.HTTP_400_BAD_REQUEST)
+
+        comment_data = data.get("comment") or None
+        post_data = data.get("post") or None
+
+        if not comment_data and not post_data:
+            msg = "Comment or post data also required"
+            return Response({"Error": msg}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"detail": "Like processed successfully"},
+        status=status.HTTP_200_OK)

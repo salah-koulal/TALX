@@ -103,3 +103,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
         return user_obj
 """
+cls_serializers = {
+    "Comment":CommentSerializer, "Users":UsersSerializer, "Post":PostSerializer,
+    "Following":FollowingSerializer, "Report":Report
+}

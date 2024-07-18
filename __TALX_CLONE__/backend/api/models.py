@@ -106,3 +106,7 @@ class Report(Base):
 
     def __str__(self):
         return f"Report by {self.reported_by.username} on {self.report_type}"
+classes = {
+    "Comment":Comment, "Users":Users, "Post":Post,
+    "Following":Following, "Report":Report
+}

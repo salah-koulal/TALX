@@ -8,6 +8,8 @@ urlpatterns = [
     path('logout/', views.UserLogout.as_view(), name='user_logout'),
     path('post/', views.AddPost.as_view(), name='post'),
     path('comment/', views.AddComment.as_view(), name='comment'),
+    path('like/', views.Like.as_view(), name='like'),
+    path('get_all/', views.GetAllByToken.as_view(), name='get_all'),
 
     path('test', views.test, name='test'),
     path('test2', views.test2, name='test2'),

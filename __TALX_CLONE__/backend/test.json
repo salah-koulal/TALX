@@ -17,6 +17,15 @@
        "content": "your mom ..  will cry with joy .. i cant believe myself 😍😍😅 "
        }
      }
+{
+    "token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6Ikt5b2tvIiwiZXhwIjoxNzIxMTk0MjcxfQ.wlkL7OrId4K_yO7dBO2HRwjBQwC22rS5gf7H2sAEhrk",
+
+   "comment": {
+
+       "ID": "a140162a-cbc0-408a-a843-84469f621a55",
+       "action":"like"
+       }
+     }
      {
     "user": {
         "email": "Kyoko-sun@example.com",
@@ -24,5 +33,20 @@
         "password": "passwordx123",
         "first_name": "first_name",
         "last_name": "last_name"
+    }
+}
+{
+"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6Ikt5b2tvIiwiZXhwIjoxNzIxMTk0MjcxfQ.wlkL7OrId4K_yO7dBO2HRwjBQwC22rS5gf7H2sAEhrk",
+
+"comment": {
+
+    "ID": "a140162a-cbc0-408a-a843-84469f621a55",
+    "action":"like"
+    },
+
+"post": {
+
+    "ID": "a140162a-cbc0-408a-a843-84469f621a55",
+    "action":"like"
     }
 }
