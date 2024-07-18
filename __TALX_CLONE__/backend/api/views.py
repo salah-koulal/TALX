@@ -198,6 +198,27 @@ class GetAllByToken(APIView):
         return Response({"data":response_obj, "issues":msg},
                         status=status.HTTP_200_OK )
 
+s200 = status.HTTP_200_OK
+class PostComments(APIView):
+    def get(self, request):
+        return Response({"detail": "Please use POST to like."},
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    def post(self, request):
+        token = request.headers.get('Authorization') or request.data["token"] or None
+        username = auth.get_by(token=token) or None
+        if not username:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        data = request.data or None
+        if not data:
+            return Response({"Error": "Request data missing"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        post_id = data.get("post_id") or None
+        if not post_id:
+            return Response({"Error":"invalid post id"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        comments_objects =Comment.objects.filter(post=post_id).all()
+        serial_comments = CommentSerializer(comments_objects, many=True).data
+        return Response(serial_comments, status=s200)
 
 class Like(APIView):
     def get(self, request):
