@@ -26,7 +26,10 @@ x = {"username":"Kyoko",
 
      }
 auth.cookies_session.append(x)
-
+S200 = status.HTTP_200_OK
+S304 = status.HTTP_304_NOT_MODIFIED
+S400 = status.HTTP_400_BAD_REQUEST
+S401 = status.HTTP_401_UNAUTHORIZED
 ################# END GLOBALS #########
 @api_view(['GET'])
 def test(request):
@@ -47,7 +50,7 @@ def test3(request):
     auth.reload()
     return Response({
         "logged_users":auth.logged_users, "cookies_session":auth.cookies_session
-        } ,status=status.HTTP_200_OK)
+        } ,status=S200)
 
 class UserRegister(APIView):
     permission_classes = [AllowAny]  # Allow any user to access this endpoint
@@ -60,7 +63,7 @@ class getCSRFCookie(APIView):
         csrf_token = get_token(request)
         return Response({'csrftoken': csrf_token})
 
-#         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+#         return Response({'detail': 'Invalid credentials'}, status=S401)
 class UserLogin(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -97,7 +100,7 @@ class AddPost(APIView):
 
                 if not req_post.issubset(post_data.keys()):
                     return Response([{"Error":f"{req_post} are required"}, req_post,request.data],
-                                    status=status.HTTP_400_BAD_REQUEST)
+                                    status=S400)
 
                 author = Users.objects.filter(username=username).first()
                 serialized_user = author.to_dict()
@@ -109,24 +112,24 @@ class AddPost(APIView):
                 serialized_post = PostSerializer(saved_post).data
                 saved_post = Post.objects.filter(author=author).first()
                 return Response(saved_post.to_dict() ,
-                                status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+                                status=S200)
+        return Response(status=S400)
 class AddComment(APIView):
     def get(self, request):
         return Response({"detail": "Please use POST to login."},
                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
     def post(self, request):
         if not request or not  request.data :
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=S400)
         data = request.data["comment"] or None
         token = request.headers.get('Authorization') or request.data["token"] or None
 
         if not data or not token:
 
-            return Response({"messing":"asdas"} , status=status.HTTP_400_BAD_REQUEST)
+            return Response({"messing":"asdas"} , status=S400)
         author_name = auth.get_by(token=token)
         if not author_name:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=S401)
 
         author = Users.objects.filter(username=author_name).first()
         if not author:
@@ -138,12 +141,12 @@ class AddComment(APIView):
 
         if not post_id or not content:
                 return Response({"messing":"comment and post_id required "},
-                                status=status.HTTP_400_BAD_REQUEST)
+                                status=S400)
 
         post_obj = Post.objects.filter(ID=post_id).first()
         if not post_obj:
             return Response({"Error":f"{post_id} is not a valid id "},
-                            status=status.HTTP_304_NOT_MODIFIED)
+                            status=S304)
         comment ={
             "author":author, "post":post_obj, "content":content
         }
@@ -163,11 +166,11 @@ class GetAllByToken(APIView):
         token = request.headers.get('Authorization') or request.data["token"] or None
         username = auth.get_by(token=token) or None
         if not username:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=S401)
         data = request.data or None
         if not data:
             return Response({"Error": "Request data missing"},
-                            status=status.HTTP_400_BAD_REQUEST)
+                            status=S400)
         response_obj = {}
         msg = ""
         user = Users.objects.filter(username=username).first()
@@ -196,9 +199,8 @@ class GetAllByToken(APIView):
 
 
         return Response({"data":response_obj, "issues":msg},
-                        status=status.HTTP_200_OK )
+                        status=S200 )
 
-s200 = status.HTTP_200_OK
 class PostComments(APIView):
     def get(self, request):
         return Response({"detail": "Please use POST to like."},
@@ -207,18 +209,18 @@ class PostComments(APIView):
         token = request.headers.get('Authorization') or request.data["token"] or None
         username = auth.get_by(token=token) or None
         if not username:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=S401)
         data = request.data or None
         if not data:
             return Response({"Error": "Request data missing"},
-                            status=status.HTTP_400_BAD_REQUEST)
+                            status=S400)
         post_id = data.get("post_id") or None
         if not post_id:
             return Response({"Error":"invalid post id"},
-                            status=status.HTTP_400_BAD_REQUEST)
+                            status=S400)
         comments_objects =Comment.objects.filter(post=post_id).all()
         serial_comments = CommentSerializer(comments_objects, many=True).data
-        return Response(serial_comments, status=s200)
+        return Response(serial_comments, status=S200)
 
 class Like(APIView):
     def get(self, request):
@@ -229,18 +231,24 @@ class Like(APIView):
         token = request.headers.get('Authorization') or request.data["token"] or None
         username = auth.get_by(token=token) or None
         if not username:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=S401)
         data = request.data or None
         if not data:
             return Response({"Error": "Request data missing"},
-            status=status.HTTP_400_BAD_REQUEST)
+            status=S400)
 
         comment_data = data.get("comment") or None
         post_data = data.get("post") or None
 
         if not comment_data and not post_data:
             msg = "Comment or post data also required"
-            return Response({"Error": msg}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({"detail": "Like processed successfully"},
-        status=status.HTTP_200_OK)
+            return Response({"Error": msg}, status=S400)
+        if comment_data:
+            ID = comment_data.get("ID") or None
+            if not ID:
+                return Response({"Error":"id not provided"},status=S400)
+            user_id = Users.objects.filter(username=username).first().ID
+            comment = Comment.objects.filter(ID=ID).first()
+            comment.likes.append(user_id)
+        return Response({"detail": f"Like processed successfully {comment.likes}"},
+        status=S200)
