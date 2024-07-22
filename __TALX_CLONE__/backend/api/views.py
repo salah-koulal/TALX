@@ -7,7 +7,7 @@ from django.middleware.csrf import get_token
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth.models import User
-from rest_framework import permissions, status, generics
+from rest_framework import permissions
 
 from rest_framework.permissions import AllowAny
 from datetime import datetime, timedelta
@@ -18,6 +18,8 @@ from django.contrib.auth.hashers import make_password
 from .models import *
 from .serializers import *
 from .authentication import Authentication
+from .__init__ import *
+from .header import *
 ######################  GLOBALS ################################
 
 auth = Authentication()
@@ -26,10 +28,9 @@ x = {"username":"Kyoko",
 
      }
 auth.cookies_session.append(x)
-S200 = status.HTTP_200_OK
-S304 = status.HTTP_304_NOT_MODIFIED
-S400 = status.HTTP_400_BAD_REQUEST
-S401 = status.HTTP_401_UNAUTHORIZED
+
+###
+use_POST = {"detail": f"Please use POST ."}
 ################# END GLOBALS #########
 @api_view(['GET'])
 def test(request):
@@ -67,9 +68,7 @@ class getCSRFCookie(APIView):
 class UserLogin(APIView):
     permission_classes = [permissions.AllowAny]
 
-    def get(self, request):
-        return Response({"detail": "Please use POST to login."},
-                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    def get(self, request):return Response(use_POST,status=S405)
 
     def post(self, request):
 
@@ -78,15 +77,13 @@ class UserLogin(APIView):
 class UserLogout(APIView):
     def get(self, request):
         return Response({"detail": "Please use POST to logout."},
-                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+                        status=S405)
 
     def post(self, request):
         return auth.logout_username(request)
 
 class AddPost(APIView):
-    def get(self, request):
-        return Response({"detail": "Please use POST to login."},
-                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    def get(self, request): return Response(use_POST, status=S405)
     def post(self, request):
         required = {"token", "post"}
         req_post = {"author", "content", "type"}
@@ -115,9 +112,8 @@ class AddPost(APIView):
                                 status=S200)
         return Response(status=S400)
 class AddComment(APIView):
-    def get(self, request):
-        return Response({"detail": "Please use POST to login."},
-                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    def get(self, request):return Response(use_POST, status=S405)
+
     def post(self, request):
         if not request or not  request.data :
             return Response(status=S400)
@@ -153,15 +149,14 @@ class AddComment(APIView):
         comment_obj = Comment(**comment)
         comment_obj.save()
         ser_comment = CommentSerializer(comment_obj).data
-        return Response(ser_comment, status=status.HTTP_201_CREATED)
+        return Response(ser_comment, status=S201)
 
 
 
 
 class GetAllByToken(APIView):
-    def get(self, request):
-        return Response({"detail": "Please use POST to like."},
-                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    def get(self, request): return Response(use_POST, status=S405)
+
     def post(self, request):
         token = request.headers.get('Authorization') or request.data["token"] or None
         username = auth.get_by(token=token) or None
@@ -202,9 +197,8 @@ class GetAllByToken(APIView):
                         status=S200 )
 
 class PostComments(APIView):
-    def get(self, request):
-        return Response({"detail": "Please use POST to like."},
-                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    def get(self, request): return Response(use_POST,status=S405)
+
     def post(self, request):
         token = request.headers.get('Authorization') or request.data["token"] or None
         username = auth.get_by(token=token) or None
@@ -223,9 +217,7 @@ class PostComments(APIView):
         return Response(serial_comments, status=S200)
 
 class Like(APIView):
-    def get(self, request):
-        return Response({"detail": "Please use POST to like."},
-                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    def get(self, request):return Response(use_POST,status=S405)
 
     def post(self, request):
         token = request.headers.get('Authorization') or request.data["token"] or None
@@ -237,6 +229,9 @@ class Like(APIView):
             return Response({"Error": "Request data missing"},
             status=S400)
 
+        user = Users.objects.filter(username=username).first()
+        user_id = user.ID
+
         comment_data = data.get("comment") or None
         post_data = data.get("post") or None
 
@@ -245,10 +240,128 @@ class Like(APIView):
             return Response({"Error": msg}, status=S400)
         if comment_data:
             ID = comment_data.get("ID") or None
-            if not ID:
-                return Response({"Error":"id not provided"},status=S400)
-            user_id = Users.objects.filter(username=username).first().ID
+            action = comment_data.get("action") or None
+            if not ID or not action:
+                return Response({"Error":"ID, action required"},status=S400)
+
             comment = Comment.objects.filter(ID=ID).first()
-            comment.likes.append(user_id)
-        return Response({"detail": f"Like processed successfully {comment.likes}"},
+            if not comment : return Response(f"comment for {ID}:{comment}", S400)
+            if action == "like":
+                if comment.dislikes.filter(ID=user.ID).exists():
+                    comment.dislikes.remove(user)
+                if not comment.likes.filter(ID=user.ID).exists():
+                    comment.likes.add(user)
+
+            elif action == "dislike":
+                if comment.likes.filter(ID=user.ID).exists():
+                    comment.likes.remove(user)
+                if not comment.dislikes.filter(ID=user.ID).exists():
+                    comment.dislikes.add(user)
+
+
+            likes_usernames = list(comment.likes.values_list('username', flat=True))
+            dislikes_usernames = list(comment.dislikes.values_list('username', flat=True))
+
+        return Response(
+            {
+                "detail": f"Like processed successfully",
+                "likes":likes_usernames,
+                "dislikes":dislikes_usernames
+            },
         status=S200)
+
+class GetObjectById(APIView):
+    def get(self, request):return Response(use_POST,status=S405)
+    def post(self, request):
+        result = get_object(request)
+        if result[0]:
+            return Response(result[1], S200)
+        return Response(result[1], S404)
+
+class UpdateByID(APIView):
+    def get(self, request):
+        return Response({"detail": "Use POST method"}, status=S.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def post(self, request):
+        token = request.headers.get('Authorization') or request.data.get('token')
+        if not token:
+            return Response({"detail": "Authentication token is missing"}, status=S.HTTP_401_UNAUTHORIZED)
+
+        username = auth.get_by(token=token)
+        if not username or not auth.is_logged(token=token):
+            return Response({"detail": "Authentication failed"}, status=S.HTTP_401_UNAUTHORIZED)
+
+        password = request.data.get('password')
+        if not password:
+            return Response({"detail": "Password is required"}, status=S.HTTP_400_BAD_REQUEST)
+
+        result = get_object(request)
+        if not result[0]:
+            return Response({"detail": result[1]}, S404)
+        obj = result[3]
+        new = result[2]
+        if not new:
+            return Response({"issue": f"New data {new}"},S400)
+
+        if obj.__class__.__name__ == 'Users':
+            if obj.username != username:
+                return Response({"detail": "You can only update your own data"}, S403)
+            if not auth.authenticate(username=username, password=make_password(password)):
+                return Response({"detail": "Password incorrect"}, S401)
+            update_result = obj.update_user(new)
+        elif obj.__class__.__name__ == 'Comment':
+            if obj.author.username != username:
+                return Response({"detail": "You can only update your own comments"},S403)
+            update_result = obj.update_comment(new)
+        elif obj.__class__.__name__ == 'Post':
+            if obj.author.username != username:
+                return Response({"detail": "You can only update your own posts"}, S403)
+            update_result = obj.update_post(new)
+        else:
+            return Response({"detail": "Unsupported class for update"}, S400)
+
+        if not update_result[0]:
+            return Response({"detail": update_result[1]}, S400)
+
+        return Response(update_result[1], S200)
+
+class DeleteByID(APIView):
+    def get(self, request):
+        return Response({"detail": "Use POST method"}, status=S405)
+
+    def post(self, request):
+        token = request.headers.get('Authorization') or request.data.get('token')
+        if not token:
+            return Response({"detail": "Authentication token is missing"}, status=S401)
+
+        username = auth.get_by(token=token)
+        if not username or not auth.is_logged(token=token):
+            return Response({"detail": "Authentication failed"}, status=S401)
+
+        password = request.data.get('password')
+        if not password:
+            return Response({"detail": "Password is required"}, status=S400)
+
+        result = get_object(request)
+        if not result[0]:
+            return Response({"detail": result[1]}, status=S404)
+        obj = result[3]
+
+        if obj.__class__.__name__ == 'Users':
+            if obj.username != username:
+                return Response({"detail": "You can only delete your own data"}, status=S403)
+            if not auth.authenticate(username=username, password=make_password(password)):
+                return Response({"detail": "Password incorrect"}, status=S401)
+            obj.delete()
+        elif obj.__class__.__name__ == 'Comment':
+            if obj.author.username != username:
+                return Response({"detail": "You can only delete your own comments"}, status=S403)
+            obj.delete()
+        elif obj.__class__.__name__ == 'Post':
+            if obj.author.username != username:
+                return Response({"detail": "You can only delete your own posts"}, status=S403)
+            obj.delete()
+        else:
+            return Response({"detail": "Unsupported class for deletion"}, status=S400)
+
+        return Response({"detail": "Deleted successfully"}, status=S200)

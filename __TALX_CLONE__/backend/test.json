@@ -35,18 +35,18 @@
         "last_name": "last_name"
     }
 }
+{"object to like comment"}
 {
 "token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6Ikt5b2tvIiwiZXhwIjoxNzIxMTk0MjcxfQ.wlkL7OrId4K_yO7dBO2HRwjBQwC22rS5gf7H2sAEhrk",
 
 "comment": {
 
-    "ID": "a140162a-cbc0-408a-a843-84469f621a55",
+    "ID": "7fd3b1a4-340f-4d60-8d6e-60838c7981ea",
     "action":"like"
     },
-
-"post": {
-
-    "ID": "a140162a-cbc0-408a-a843-84469f621a55",
-    "action":"like"
-    }
+}
+{"object to  get comment object "}
+{
+    "class": "Comment",
+    "ID": "7fd3b1a4-340f-4d60-8d6e-60838c7981ea"
 }

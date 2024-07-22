@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 import uuid
 from datetime import datetime
 from django.contrib.auth.hashers import make_password
+from .__init__ import userval, postval, comntval
 
 time_format = "%Y-%m-%dT%H:%M:%S.%f"
 
@@ -10,7 +11,8 @@ class Base(models.Model):
     ID = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
-
+    # def update(self, new=None):
+        # self.updated_date = datetime.now()
     def to_dict(self):
         new_dict = self.__dict__.copy()
         new_dict['ID'] = str(new_dict['ID'])
@@ -31,10 +33,37 @@ class Base(models.Model):
         abstract = True
 
 class Users(Base, User):
+    def update_user(self, data_obj=None):
+        if not data_obj:
+            return (False, "No data to update")
+
+        result = userval.all(data_object=data_obj, all_required=False)
+        if not result[0]:
+            return result
+
+        clean_data = result[1]
+        similar_val_ky = []
+
+        for key, value in clean_data.items():
+            current_value = getattr(self, key, None)
+            if key == "password":
+                value = make_password(value)
+
+            if current_value == value:
+                similar_val_ky.append(key)
+                continue
+
+            setattr(self, key, value)
+
+        if len(similar_val_ky) == len(clean_data):
+            return (False, ", ".join(similar_val_ky) + " are the same")
+
+        self.updated_date = datetime.now()
+        self.save()
+        return (True, self.to_dict())
 
     def __str__(self):
         return self.username
-
 class Profile(Base):
     user = models.OneToOneField(Users, on_delete=models.CASCADE)
     bio = models.TextField(blank=True)
@@ -42,7 +71,15 @@ class Profile(Base):
         upload_to="profile_images",
         default="profile_images/blank-profile-picture.png",
     )
-
+    def display(self):
+        display_data =  {
+            "username":self.user.username,
+            "first_name":self.user.first_name,
+            "last_name":self.user.last_name,
+            "last_login":self.user.last_login,
+            "is_active":self.user.is_active,
+        }
+        return True , display_data
     def __str__(self):
         return self.user.username
 
@@ -59,9 +96,33 @@ class Post(Base):
     dislikes = models.ManyToManyField(
         Users, related_name="disliked_posts", blank=True
     )
+    def update_post(self, data=None):
+        if not data:
+            return (False, "No data to update")
+
+        result = postval.all(data_obj=data, all_required=False)
+        if not result[0]:
+            return result
+
+        clean_data = result[1]
+        similar_val_ky = []
+
+        for key, value in clean_data.items():
+            if getattr(self, key) == value:
+                similar_val_ky.append(key)
+                continue
+            setattr(self, key, value)
+
+        if len(similar_val_ky) == len(clean_data.keys()):
+            return (False, f"{', '.join(similar_val_ky)} are the same")
+
+        self.updated_date = datetime.now()
+        self.save()
+        return (True, self.to_dict())
 
     def __str__(self):
         return f"{self.author.username}'s post"
+
 
 class Comment(Base):
     author = models.ForeignKey(Users, on_delete=models.CASCADE)
@@ -73,6 +134,31 @@ class Comment(Base):
     dislikes = models.ManyToManyField(
         Users, related_name="disliked_comments", blank=True
     )
+    def update_comment(self, data=None):
+        if not data:
+            return (False, "No data to update")
+
+        result = comntval.all(data_obj=data, all_required=False)
+        if not result[0]:
+            return result
+
+        clean_data = result[1]
+        similar_val_ky = []
+
+        for key, value in clean_data.items():
+            if getattr(self, key) == value:
+                similar_val_ky.append(key)
+                continue
+            setattr(self, key, value)
+
+        if len(similar_val_ky) == len(clean_data.keys()):
+            return (False, f"{', '.join(similar_val_ky)} are the same")
+
+        self.updated_date = datetime.now()
+        self.save()
+        return (True, self.to_dict())
+
+
 
     def __str__(self):
         return f"{self.author.username}'s comment on {self.post}"
