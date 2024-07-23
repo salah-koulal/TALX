@@ -4,12 +4,13 @@ import { NoProfile } from "../assets/idx.js";
 import { useSelector, useDispatch } from "react-redux";
 import { getFollowers, getFollowing } from "../Redux/userSlice.js";
 import { client } from "../client.js";
-import { BsFiletypeGif, BsPersonFillAdd } from "react-icons/bs";
+import { BsFiletypeGif, BsPersonFillAdd, BsPersonFill } from "react-icons/bs";
 
 const SuggestedFriends = () => {
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const [suggestedFriends, setSuggestedFriends] = useState(null);
+  const [followed, setFollowed] = useState(false);
   console.log("friend sug", suggestedFriends);
   const getProfiles = async () => {
     const data = await client.get('/api/profiles');
@@ -23,6 +24,7 @@ const SuggestedFriends = () => {
     const resp = await client.post(`/api/users/${friend.user.username}/follow/`);
     console.log("resp follow", resp.data)
     dispatch(getFollowing(user?.user?.username));
+    setFollowed(prev => !prev)
     return resp.data;
   };
 
