@@ -29,14 +29,14 @@ const TopBar = () => {
   const handleSearch = async (data) => {};
 
   return (
-    <div className="topbar w-full flex items-center justify-between rounded-lg py-3 md:py-6 px-4 lg:py-2 bg-primary">
+    <div className="topbar w-full flex items-center justify-between rounded-lg py-2 px-4 bg-primary">
       <Link to="/" className="flex gap-2 items-center">
-        <div className="w-full flex gap-2 items-center mb-6">
+        <div className="flex gap-2 items-center">
           <img
             src={logo}
             alt=""
-            width="80px"
-            className="logo mt-6 ml-20 max-sm:ml-5"
+            width="60px"
+            className="logo mt-2 ml-4 max-sm:ml-2"
           />
         </div>
       </Link>
@@ -47,18 +47,18 @@ const TopBar = () => {
       >
         <TextInput
           placeholder="Search..."
-          styles="w-[18rem] lg:w-[38rem]  rounded-l-full py-3 "
+          styles="w-[16rem] lg:w-[32rem] rounded-l-full py-2"
           register={register("search")}
         />
         <CustomButton
           title="Search"
           type="submit"
-          containerStyles="bg-[#db4b4b] text-white px-6 py-3 mt-2 rounded-r-full"
+          containerStyles="bg-[#db4b4b] text-white px-4 py-2 rounded-r-full"
         />
       </form>
 
       {/* ICONS */}
-      <div className="flex gap-4 items-center text-ascent-1 text-md md:text-xl">
+      <div className="flex gap-3 items-center text-ascent-1 text-md md:text-lg">
         <button onClick={() => handleTheme()}>
           {theme == "dark" ? <BsMoon /> : <BsSunFill />}
         </button>
@@ -71,7 +71,7 @@ const TopBar = () => {
             <CustomButton
               onClick={() => dispatch(logoutUser())}
               title="Log Out"
-              containerStyles="text-sm text-ascent-1 px-4 md:px-6 py-1 md:py-2 border border-[#666] rounded-full"
+              containerStyles="text-sm text-ascent-1 px-3 md:px-4 py-1 border border-[#666] rounded-full"
             />
           </Link>
         </div>
